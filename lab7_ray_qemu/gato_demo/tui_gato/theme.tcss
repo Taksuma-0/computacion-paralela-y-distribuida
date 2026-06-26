@@ -1,0 +1,138 @@
+/* Tema UTEM para la TUI Ray. Azul #004E9A, verde #7AB830, fondo oscuro. */
+
+Screen {
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+/* ---------- Launcher ---------- */
+#banner {
+    content-align: center middle;
+    height: auto;
+    padding: 1 0;
+}
+#menu {
+    border: round #004E9A;
+    background: #161b22;
+    padding: 1 2;
+    height: auto;
+}
+#cluster-status {
+    border: round #7AB830;
+    background: #161b22;
+    padding: 0 2;
+    height: 3;
+    content-align: center middle;
+}
+#launch-log {
+    border: round #30363d;
+    background: #0d1117;
+    height: 1fr;
+}
+.row { height: auto; }
+.row Label { width: 18; content-align: left middle; }
+Select { width: 1fr; }
+Input { width: 1fr; }
+
+Button {
+    background: #004E9A;
+    color: white;
+    margin: 0 1;
+}
+Button:hover { background: #7AB830; color: #0d1117; text-style: bold; }
+Button.-danger { background: #b3261e; }
+Button.-go { background: #238636; color: white; }
+Button.-go:hover { background: #2ea043; color: white; text-style: bold; }
+Button:disabled { background: #30363d; color: #6e7681; }
+
+/* ---------- Train Dashboard ---------- */
+#dash-header {
+    height: 3;
+    background: #161b22;
+    border: round #004E9A;
+    content-align: left middle;
+    padding: 0 1;
+}
+#dash-body { height: 1fr; }
+#workers-col { width: 2fr; height: 1fr; }
+#right-col { width: 3fr; height: 1fr; }
+
+WorkerPanel {
+    border: round #004E9A;
+    background: #161b22;
+    height: 1fr;
+    padding: 0 1;
+}
+WorkerPanel.busy { border: round #7AB830; }
+WorkerPanel.down { border: round #b3261e; }
+WorkerPanel .metrics { height: auto; }
+WorkerPanel RichLog { height: 1fr; background: #0d1117; }
+
+ClusterFlow {
+    border: round #7AB830;
+    background: #161b22;
+    height: 1fr;
+    padding: 1 2;
+}
+LearningCurve {
+    border: round #7AB830;
+    background: #161b22;
+    height: 1fr;
+    padding: 0 1;
+}
+
+#bottom { height: 5; }
+GlobalProgress {
+    border: round #004E9A;
+    background: #161b22;
+    width: 3fr;
+    padding: 0 1;
+}
+SpeedupCard {
+    border: round #7AB830;
+    background: #161b22;
+    width: 1fr;
+    content-align: center middle;
+}
+#event-log {
+    border: round #30363d;
+    background: #0d1117;
+    height: 7;
+}
+
+/* ---------- Play ---------- */
+#play-header {
+    height: 3;
+    background: #161b22;
+    border: round #004E9A;
+    content-align: center middle;
+    padding: 0 1;
+}
+#play-status {
+    height: 3;
+    content-align: center middle;
+    text-style: bold;
+}
+#board-grid {
+    grid-size: 3 3;
+    grid-gutter: 1 1;
+    width: 41;
+    height: 17;
+    align: center middle;
+    content-align: center middle;
+}
+Button.cell {
+    width: 12;
+    height: 5;
+    content-align: center middle;
+    text-style: bold;
+    background: #11141d;
+    border: round #30363d;
+    color: #e6edf3;
+}
+Button.cell:hover { background: #161b22; border: round #7AB830; }
+Button.cell.x { color: #5b9dff; }
+Button.cell.o { color: #f5a623; }
+Button.cell.win { background: #23314a; border: round #5b9dff; }
+#play-controls { height: auto; align: center middle; content-align: center middle; }
+#score { height: 3; content-align: center middle; }

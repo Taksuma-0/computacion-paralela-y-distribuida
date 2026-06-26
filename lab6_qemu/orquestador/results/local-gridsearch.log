@@ -1,0 +1,40 @@
+[11:35:55] job=local-gridsearch task=task_gridsearch chunks=32 workers=['local1', 'local2']
+[11:35:55] [local1] EN LINEA y funcional: self_test funcional OK
+[11:35:55] [local2] EN LINEA y funcional: self_test funcional OK
+[11:35:55] Listo para trabajar con 2 worker(s): ['local1', 'local2']
+[11:35:55] [local2] chunk 1 OK (0.0001s)
+[11:35:55] [local2] chunk 2 OK (0.0001s)
+[11:35:55] [local2] chunk 3 OK (0.0001s)
+[11:35:55] [local2] chunk 4 OK (0.0003s)
+[11:35:55] [local1] chunk 0 OK (0.0002s)
+[11:35:55] [local1] chunk 6 OK (0.0001s)
+[11:35:55] [local2] chunk 5 OK (0.0001s)
+[11:35:55] [local1] chunk 7 OK (0.0001s)
+[11:35:55] [local1] chunk 9 OK (0.0001s)
+[11:35:55] [local1] chunk 10 OK (0.0001s)
+[11:35:55] [local1] chunk 11 OK (0.0001s)
+[11:35:55] [local1] chunk 12 OK (0.0001s)
+[11:35:55] [local1] chunk 13 OK (0.0001s)
+[11:35:55] [local1] chunk 14 OK (0.0001s)
+[11:35:55] [local2] chunk 8 OK (0.0002s)
+[11:35:55] [local2] chunk 16 OK (0.0001s)
+[11:35:55] [local1] chunk 15 OK (0.0002s)
+[11:35:55] [local1] chunk 18 OK (0.0001s)
+[11:35:55] [local1] chunk 19 OK (0.0001s)
+[11:35:55] [local1] chunk 20 OK (0.0001s)
+[11:35:55] [local1] chunk 21 OK (0.0001s)
+[11:35:55] [local1] chunk 22 OK (0.0001s)
+[11:35:55] [local2] chunk 17 OK (0.0002s)
+[11:35:55] [local2] chunk 24 OK (0.0001s)
+[11:35:55] [local2] chunk 25 OK (0.0001s)
+[11:35:55] [local2] chunk 26 OK (0.0001s)
+[11:35:55] [local2] chunk 27 OK (0.0001s)
+[11:35:55] [local2] chunk 28 OK (0.0002s)
+[11:35:55] [local1] chunk 23 OK (0.0004s)
+[11:35:55] [local2] chunk 29 OK (0.0001s)
+[11:35:55] [local1] chunk 30 OK (0.0002s)
+[11:35:55] [local2] chunk 31 OK (0.0002s)
+[11:35:55] FIN: 32/32 chunks OK, 0 reintentos, 0 abandonados, 0.098s
+[11:35:55] speedup = 0.015 (baseline 0.0015s / distribuido 0.098s)
+[11:35:55] resultado: {"best_config": {"depth": 4, "lr": 0.1, "reg": 0.0}, "best_score": 0.00538, "configs_evaluated": 144, "partials": 32}
+[11:35:55] evidencia guardada en C:\Users\welin\Desktop\universidad\Paralela\Paralelismo_con_qemu\orquestador\results\local-gridsearch.json

@@ -7,7 +7,17 @@ _lab*_summary.json
 
 *.zip
 *.pptx
+*.docx
 *.pdf
+
+# Paquete QEMU (binarios grandes + discos qcow2): no versionar
+*.rar
+qemu-cluster-demo/
+
+# Binarios grandes de la prueba (fotos escaneadas / datos regenerables por semilla)
+prueba 1 fotos welinton/
+datos_generados/
+*.jsonl.gz
 
 build_lab*_assets.py
 repaso_rapido_lab*.md

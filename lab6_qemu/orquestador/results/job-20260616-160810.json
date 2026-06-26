@@ -1,0 +1,329 @@
+{
+  "job_id": "job-20260616-160810",
+  "task": "task_primes.py",
+  "task_name": "task_primes",
+  "payload": {
+    "upper": 300000,
+    "n_chunks": 40
+  },
+  "coordinator_location": "host",
+  "workers": [
+    {
+      "name": "local1",
+      "task_host": "127.0.0.1",
+      "task_port": 9101
+    },
+    {
+      "name": "local2",
+      "task_host": "127.0.0.1",
+      "task_port": 9102
+    }
+  ],
+  "healthy_workers": [
+    "local1",
+    "local2"
+  ],
+  "n_chunks": 40,
+  "completed": 40,
+  "elapsed": 0.8723,
+  "elapsed_baseline": 0.4922,
+  "speedup": 0.564,
+  "retries": 0,
+  "failed_chunks": [],
+  "per_worker": {
+    "local1": {
+      "chunks": 22,
+      "busy_seconds": 0.2568
+    },
+    "local2": {
+      "chunks": 18,
+      "busy_seconds": 0.2048
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0055
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0058
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0055
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0076
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0067
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0068
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0073
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.011
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.008
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0118
+    },
+    {
+      "chunk_id": 10,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.013
+    },
+    {
+      "chunk_id": 11,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0103
+    },
+    {
+      "chunk_id": 12,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0138
+    },
+    {
+      "chunk_id": 13,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0137
+    },
+    {
+      "chunk_id": 14,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0119
+    },
+    {
+      "chunk_id": 15,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.011
+    },
+    {
+      "chunk_id": 16,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0104
+    },
+    {
+      "chunk_id": 17,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0107
+    },
+    {
+      "chunk_id": 18,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0142
+    },
+    {
+      "chunk_id": 19,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0111
+    },
+    {
+      "chunk_id": 20,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0166
+    },
+    {
+      "chunk_id": 21,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0115
+    },
+    {
+      "chunk_id": 22,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0121
+    },
+    {
+      "chunk_id": 23,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0122
+    },
+    {
+      "chunk_id": 24,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0107
+    },
+    {
+      "chunk_id": 25,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0122
+    },
+    {
+      "chunk_id": 26,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0118
+    },
+    {
+      "chunk_id": 27,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0147
+    },
+    {
+      "chunk_id": 28,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0117
+    },
+    {
+      "chunk_id": 29,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0124
+    },
+    {
+      "chunk_id": 30,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0211
+    },
+    {
+      "chunk_id": 31,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0127
+    },
+    {
+      "chunk_id": 32,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0147
+    },
+    {
+      "chunk_id": 33,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0123
+    },
+    {
+      "chunk_id": 34,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.013
+    },
+    {
+      "chunk_id": 35,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0125
+    },
+    {
+      "chunk_id": 36,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0129
+    },
+    {
+      "chunk_id": 37,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.014
+    },
+    {
+      "chunk_id": 38,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0136
+    },
+    {
+      "chunk_id": 39,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0128
+    }
+  ],
+  "result": {
+    "total_primes": 25997
+  },
+  "timestamp": "2026-06-16T16:08:11"
+}

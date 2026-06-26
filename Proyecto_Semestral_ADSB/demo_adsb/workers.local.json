@@ -1,0 +1,9 @@
+{
+  "ssh_user": "root",
+  "remote_dir": "/root/orchestrator",
+  "_comment": "Solo para desarrollo: dos agentes locales en el host (127.0.0.1). Usar con --no-deploy. Puertos 9101/9102 para NO colisionar con los reenvios QEMU 9001/9002 (asi el modo local y el cluster pueden coexistir).",
+  "workers": [
+    {"name": "local1", "task_host": "127.0.0.1", "task_port": 9101, "ssh_host": "127.0.0.1", "ssh_port": 2221},
+    {"name": "local2", "task_host": "127.0.0.1", "task_port": 9102, "ssh_host": "127.0.0.1", "ssh_port": 2222}
+  ]
+}

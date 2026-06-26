@@ -1,0 +1,101 @@
+/* Tema UTEM para el TUI. Azul #004E9A, verde #7AB830, fondo oscuro. */
+
+Screen {
+    background: #0d1117;
+    color: #e6edf3;
+}
+
+/* ---------- Launcher ---------- */
+#banner {
+    content-align: center middle;
+    height: auto;
+    padding: 1 0;
+}
+#menu {
+    border: round #004E9A;
+    background: #161b22;
+    padding: 1 2;
+    height: auto;
+}
+#cluster-status {
+    border: round #7AB830;
+    background: #161b22;
+    padding: 0 2;
+    height: 3;
+    content-align: center middle;
+}
+#launch-log {
+    border: round #30363d;
+    background: #0d1117;
+    height: 1fr;
+}
+.row { height: auto; }
+Select { width: 1fr; }
+Input { width: 1fr; }
+
+Button {
+    background: #004E9A;
+    color: white;
+    margin: 0 1;
+}
+Button:hover { background: #7AB830; color: #0d1117; text-style: bold; }
+Button.-danger { background: #b3261e; }
+Button:disabled { background: #30363d; color: #6e7681; }
+
+/* ---------- Dashboard ---------- */
+#dash-header {
+    height: 3;
+    background: #161b22;
+    border: round #004E9A;
+    content-align: left middle;
+    padding: 0 1;
+}
+#dash-body { height: 1fr; }
+#workers-col { width: 2fr; height: 1fr; }
+ClusterFlow { width: 3fr; }
+
+WorkerPanel {
+    border: round #004E9A;
+    background: #161b22;
+    height: 1fr;
+    padding: 0 1;
+}
+WorkerPanel.busy { border: round #7AB830; }
+WorkerPanel.down { border: round #b3261e; }
+WorkerPanel .metrics { height: auto; }
+WorkerPanel RichLog { height: 1fr; background: #0d1117; }
+
+ClusterFlow {
+    border: round #7AB830;
+    background: #161b22;
+    height: 1fr;
+    padding: 1 2;
+}
+
+#bottom { height: 4; }
+GlobalProgress {
+    border: round #004E9A;
+    background: #161b22;
+    width: 3fr;
+    padding: 0 1;
+}
+SpeedupCard {
+    border: round #7AB830;
+    background: #161b22;
+    width: 1fr;
+    content-align: center middle;
+}
+#event-log {
+    border: round #30363d;
+    background: #0d1117;
+    height: 8;
+}
+ProgressBar > .bar--bar { color: #7AB830; }
+ProgressBar > .bar--complete { color: #7AB830; }
+
+/* ---------- Boton destacado "Despertar cluster" ---------- */
+Button.-go { background: #238636; color: white; }
+Button.-go:hover { background: #2ea043; color: white; text-style: bold; }
+
+/* El arranque del cluster ya NO usa pantalla animada: solo la linea #cluster-status
+   y el #launch-log del launcher (simple y liviano, no se cuelga). */

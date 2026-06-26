@@ -1,0 +1,53 @@
+[12:51:10] job=cluster-kill task=task_primes chunks=40 workers=['nodo1', 'nodo2']
+[12:51:10] [nodo1] deploy: agente sin cambios, task sin cambios
+[12:51:35] [nodo1] reparando (intento 1)...
+[12:51:36] [nodo1] deploy: agente sin cambios, task sin cambios
+[12:51:39] [nodo1] EN LINEA y funcional: self_test funcional OK
+[12:51:40] [nodo2] deploy: agente sin cambios, task sin cambios
+[12:52:05] [nodo2] reparando (intento 1)...
+[12:52:06] [nodo2] deploy: agente sin cambios, task sin cambios
+[12:52:09] [nodo2] EN LINEA y funcional: self_test funcional OK
+[12:52:09] Listo para trabajar con 2 worker(s): ['nodo1', 'nodo2']
+[12:52:11] [nodo1] chunk 0 OK (1.7712s)
+[12:52:11] [nodo2] chunk 1 OK (1.8638s)
+[12:52:14] [nodo2] chunk 3 OK (2.7107s)
+[12:52:14] [nodo1] chunk 2 OK (3.0507s)
+[12:52:17] [nodo2] chunk 4 OK (2.8767s)
+[12:52:18] [nodo1] chunk 5 OK (4.3324s)
+[12:52:20] [nodo2] chunk 6 OK (3.5749s)
+[12:52:23] [nodo1] chunk 7 OK (4.9607s)
+[12:52:24] [nodo2] chunk 8 OK (4.0121s)
+[12:52:29] [nodo2] chunk 10 OK (4.4089s)
+[12:52:29] [nodo1] chunk 9 OK (5.7747s)
+[12:52:33] [nodo2] chunk 11 OK (4.6238s)
+[12:52:36] [nodo1] chunk 12 OK (6.469s)
+[12:52:39] [nodo2] chunk 13 OK (4.9836s)
+[12:52:43] [nodo1] chunk 14 OK (7.0569s)
+[12:52:44] [nodo2] chunk 15 OK (5.3385s)
+[12:52:50] [nodo2] chunk 17 OK (5.6403s)
+[12:52:50] [nodo1] chunk 16 OK (7.4245s)
+[12:52:55] [nodo2] chunk 18 OK (5.8119s)
+[12:52:58] [nodo1] chunk 19 OK (7.9984s)
+[12:53:01] [nodo2] chunk 20 OK (6.0031s)
+[12:53:05] [nodo1] chunk 21 OK (6.556s)
+[12:53:08] [nodo2] chunk 22 OK (6.3123s)
+[12:53:11] [nodo1] chunk 23 OK (6.4542s)
+[12:53:14] [nodo2] chunk 24 OK (6.499s)
+[12:53:18] [nodo1] chunk 25 OK (6.6134s)
+[12:53:21] [nodo2] chunk 26 OK (6.8141s)
+[12:53:25] [nodo1] chunk 27 OK (6.9533s)
+[12:53:28] [nodo2] chunk 28 OK (6.9422s)
+[12:53:32] [nodo1] chunk 29 OK (7.0178s)
+[12:53:35] [nodo2] chunk 30 OK (7.1313s)
+[12:53:39] [nodo1] chunk 31 OK (7.2174s)
+[12:53:43] [nodo2] chunk 32 OK (7.3663s)
+[12:53:47] [nodo1] chunk 33 OK (7.6419s)
+[12:53:50] [nodo2] chunk 34 OK (7.5909s)
+[12:53:55] [nodo1] chunk 35 OK (7.6735s)
+[12:53:58] [nodo2] chunk 36 OK (7.8349s)
+[12:54:04] [nodo1] chunk 37 OK (9.0708s)
+[12:54:06] [nodo2] chunk 38 OK (7.888s)
+[12:54:13] [nodo1] chunk 39 OK (8.8766s)
+[12:54:13] FIN: 40/40 chunks OK, 0 reintentos, 0 abandonados, 123.400s
+[12:54:13] resultado: {"total_primes": 148933}
+[12:54:13] evidencia guardada en /root/orchestrator/results/cluster-kill.json

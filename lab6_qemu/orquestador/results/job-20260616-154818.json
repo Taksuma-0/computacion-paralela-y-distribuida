@@ -1,0 +1,336 @@
+{
+  "job_id": "job-20260616-154818",
+  "task": "task_primes.py",
+  "task_name": "task_primes",
+  "payload": {
+    "upper": 300000,
+    "n_chunks": 24
+  },
+  "coordinator_location": "host",
+  "workers": [
+    {
+      "name": "local1",
+      "task_host": "127.0.0.1",
+      "task_port": 9101
+    },
+    {
+      "name": "local2",
+      "task_host": "127.0.0.1",
+      "task_port": 9102
+    }
+  ],
+  "healthy_workers": [
+    "local1",
+    "local2"
+  ],
+  "n_chunks": 24,
+  "completed": 0,
+  "elapsed": 1.6388,
+  "elapsed_baseline": 0.5595,
+  "speedup": 0.341,
+  "retries": 48,
+  "failed_chunks": [
+    {
+      "chunk_id": 1,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 0,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 2,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 3,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 4,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 5,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 7,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 6,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 8,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 10,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 11,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 9,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 14,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 12,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 16,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 15,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 13,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 17,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 18,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 19,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 20,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 22,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 21,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    },
+    {
+      "chunk_id": 23,
+      "error": "OSError: [Errno 22] Invalid argument",
+      "attempts": 3
+    }
+  ],
+  "per_worker": {
+    "local1": {
+      "chunks": 0,
+      "busy_seconds": 0.0
+    },
+    "local2": {
+      "chunks": 0,
+      "busy_seconds": 0.0
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 1,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 2,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 3,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 4,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 5,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 6,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 7,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 8,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 9,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 10,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 11,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 12,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 13,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 14,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 15,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 16,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 17,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 18,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 19,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 20,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 21,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local1",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 22,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    },
+    {
+      "chunk_id": 23,
+      "state": "abandonado",
+      "attempts": 3,
+      "worker": "local2",
+      "error": "OSError: [Errno 22] Invalid argument"
+    }
+  ],
+  "result": null,
+  "timestamp": "2026-06-16T15:48:20"
+}

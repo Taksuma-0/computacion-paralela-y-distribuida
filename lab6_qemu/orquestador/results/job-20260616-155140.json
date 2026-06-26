@@ -1,0 +1,276 @@
+{
+  "job_id": "job-20260616-155140",
+  "task": "task_primes.py",
+  "task_name": "task_primes",
+  "payload": {
+    "upper": 400000,
+    "n_chunks": 24
+  },
+  "coordinator_location": "host",
+  "workers": [
+    {
+      "name": "local1",
+      "task_host": "127.0.0.1",
+      "task_port": 9101
+    },
+    {
+      "name": "local2",
+      "task_host": "127.0.0.1",
+      "task_port": 9102
+    }
+  ],
+  "healthy_workers": [
+    "local1",
+    "local2"
+  ],
+  "n_chunks": 24,
+  "completed": 10,
+  "elapsed": 0.3021,
+  "elapsed_baseline": 1.3392,
+  "speedup": 4.433,
+  "retries": 0,
+  "failed_chunks": [
+    {
+      "chunk_id": 10,
+      "error": "todos los workers DOWN",
+      "attempts": 1
+    },
+    {
+      "chunk_id": 11,
+      "error": "todos los workers DOWN",
+      "attempts": 1
+    },
+    {
+      "chunk_id": 12,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 13,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 14,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 15,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 16,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 17,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 18,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 19,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 20,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 21,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 22,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    },
+    {
+      "chunk_id": 23,
+      "error": "todos los workers DOWN",
+      "attempts": 0
+    }
+  ],
+  "per_worker": {
+    "local1": {
+      "chunks": 5,
+      "busy_seconds": 0.135
+    },
+    "local2": {
+      "chunks": 5,
+      "busy_seconds": 0.0977
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0121
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0151
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0145
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0178
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0173
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0185
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0434
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0223
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.024
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0477
+    },
+    {
+      "chunk_id": 10,
+      "state": "abandonado",
+      "attempts": 1,
+      "worker": "local2",
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 11,
+      "state": "abandonado",
+      "attempts": 1,
+      "worker": "local1",
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 12,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 13,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 14,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 15,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 16,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 17,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 18,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 19,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 20,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 21,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 22,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    },
+    {
+      "chunk_id": 23,
+      "state": "abandonado",
+      "attempts": 0,
+      "error": "todos los workers DOWN"
+    }
+  ],
+  "result": {
+    "total_primes": 15227
+  },
+  "timestamp": "2026-06-16T15:51:40"
+}

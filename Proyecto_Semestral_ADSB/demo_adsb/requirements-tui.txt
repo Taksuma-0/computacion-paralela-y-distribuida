@@ -1,0 +1,5 @@
+# Dependencias SOLO del TUI (herramienta del host). El orquestador y el codigo de
+# las VMs siguen siendo stdlib puro.
+textual>=0.80
+rich>=13
+paramiko>=3

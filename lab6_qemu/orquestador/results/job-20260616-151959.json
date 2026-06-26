@@ -1,0 +1,388 @@
+{
+  "job_id": "job-20260616-151959",
+  "task": "task_etl.py",
+  "task_name": "task_etl",
+  "payload": {
+    "seed": 7,
+    "num_rows": 200000,
+    "n_chunks": 40
+  },
+  "coordinator_location": "host",
+  "workers": [
+    {
+      "name": "nodo1",
+      "task_host": "127.0.0.1",
+      "task_port": 9001
+    },
+    {
+      "name": "nodo2",
+      "task_host": "127.0.0.1",
+      "task_port": 9002
+    }
+  ],
+  "healthy_workers": [
+    "nodo1",
+    "nodo2"
+  ],
+  "n_chunks": 40,
+  "completed": 40,
+  "elapsed": 9.7552,
+  "elapsed_baseline": 0.3898,
+  "speedup": 0.04,
+  "retries": 0,
+  "failed_chunks": [],
+  "per_worker": {
+    "nodo1": {
+      "chunks": 19,
+      "busy_seconds": 9.3777
+    },
+    "nodo2": {
+      "chunks": 21,
+      "busy_seconds": 9.1489
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.9415
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4518
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4088
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4296
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.639
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4135
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.5692
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.3897
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.3833
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.6057
+    },
+    {
+      "chunk_id": 10,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4236
+    },
+    {
+      "chunk_id": 11,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4947
+    },
+    {
+      "chunk_id": 12,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4503
+    },
+    {
+      "chunk_id": 13,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4195
+    },
+    {
+      "chunk_id": 14,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.3983
+    },
+    {
+      "chunk_id": 15,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4909
+    },
+    {
+      "chunk_id": 16,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.476
+    },
+    {
+      "chunk_id": 17,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4625
+    },
+    {
+      "chunk_id": 18,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4549
+    },
+    {
+      "chunk_id": 19,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.409
+    },
+    {
+      "chunk_id": 20,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4184
+    },
+    {
+      "chunk_id": 21,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4601
+    },
+    {
+      "chunk_id": 22,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4543
+    },
+    {
+      "chunk_id": 23,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4668
+    },
+    {
+      "chunk_id": 24,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4679
+    },
+    {
+      "chunk_id": 25,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4042
+    },
+    {
+      "chunk_id": 26,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4245
+    },
+    {
+      "chunk_id": 27,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4727
+    },
+    {
+      "chunk_id": 28,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4616
+    },
+    {
+      "chunk_id": 29,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4158
+    },
+    {
+      "chunk_id": 30,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4299
+    },
+    {
+      "chunk_id": 31,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4343
+    },
+    {
+      "chunk_id": 32,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4538
+    },
+    {
+      "chunk_id": 33,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4254
+    },
+    {
+      "chunk_id": 34,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4122
+    },
+    {
+      "chunk_id": 35,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.4487
+    },
+    {
+      "chunk_id": 36,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4942
+    },
+    {
+      "chunk_id": 37,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.485
+    },
+    {
+      "chunk_id": 38,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.4523
+    },
+    {
+      "chunk_id": 39,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.3327
+    }
+  ],
+  "result": {
+    "n_valid": 155387,
+    "n_discarded": 44613,
+    "total_amount": 38889338.57,
+    "avg_amount": 250.2741,
+    "min_amount": 0.0,
+    "max_amount": 500.0,
+    "consolidated_sample": [
+      {
+        "id": 0,
+        "name": "CLIENTE0",
+        "amount": 344.5
+      },
+      {
+        "id": 1,
+        "name": "CLIENTE1",
+        "amount": 71.76
+      },
+      {
+        "id": 2,
+        "name": "CLIENTE2",
+        "amount": 491.64
+      },
+      {
+        "id": 5000,
+        "name": "CLIENTE5000",
+        "amount": 257.34
+      },
+      {
+        "id": 5001,
+        "name": "CLIENTE5001",
+        "amount": 115.8
+      },
+      {
+        "id": 5002,
+        "name": "CLIENTE5002",
+        "amount": 320.54
+      },
+      {
+        "id": 10000,
+        "name": "CLIENTE10000",
+        "amount": 339.98
+      },
+      {
+        "id": 10001,
+        "name": "CLIENTE10001",
+        "amount": 447.5
+      },
+      {
+        "id": 10002,
+        "name": "CLIENTE10002",
+        "amount": 369.38
+      },
+      {
+        "id": 15000,
+        "name": "CLIENTE15000",
+        "amount": 490.81
+      }
+    ],
+    "rows_in_sample": 10
+  },
+  "timestamp": "2026-06-16T15:20:10"
+}

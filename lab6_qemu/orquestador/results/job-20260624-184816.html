@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADS-B ANOMALY SCOPE</title>
+<style>
+:root{
+  --void:#04100a; --panel:#06170e; --panel2:#08200f; --grid:#114026; --grid2:#0c2c1b;
+  --phos:#39ff7a; --phos-dim:#1f8f4d; --ink:#bfe9cf; --ink-dim:#5f8a72; --paper:#e9fbef;
+  --rodeo:#3fd0ff; --holding:#ffb000; --descenso_anomalo:#ff5247; --go_around:#c77dff;
+  --warn:#ffb000; --bad:#ff5247;
+  --mono:ui-monospace,"Cascadia Code","SFMono-Regular","Consolas","Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 30% -10%, #0a2417 0%, var(--void) 60%),
+    var(--void);
+  color:var(--ink); font-family:var(--mono); font-size:14px; line-height:1.45;
+  padding:18px; letter-spacing:.02em;
+  -webkit-font-smoothing:antialiased;
+}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 2px 3px)}
+.wrap{max-width:1180px;margin:0 auto;position:relative;z-index:1}
+
+/* ---- status bar ---- */
+.status{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:10px;padding:12px 16px;margin-bottom:14px}
+.status .top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand{font-size:20px;font-weight:700;letter-spacing:.18em;color:var(--paper);
+  text-shadow:0 0 12px rgba(57,255,122,.45)}
+.brand .dot{color:var(--phos);animation:blink 1.4s steps(1) infinite}
+.tag{color:var(--ink-dim);font-size:11px;letter-spacing:.16em}
+.readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.cell{border:1px solid var(--grid2);border-radius:6px;padding:5px 10px;font-size:11px;
+  letter-spacing:.1em;color:var(--ink-dim);background:rgba(8,32,18,.5)}
+.cell b{color:var(--paper);font-weight:700;letter-spacing:.04em}
+.cell.alert b{color:var(--phos)}
+
+/* ---- main grid ---- */
+.deck{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.85fr);gap:14px}
+@media(max-width:900px){.deck{grid-template-columns:1fr}}
+.frame{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:12px;padding:14px;position:relative;overflow:hidden}
+.frame > h2{margin:0 0 10px;font-size:12px;letter-spacing:.22em;color:var(--ink-dim);font-weight:700;
+  display:flex;justify-content:space-between;align-items:center}
+.frame > h2 .hint{color:var(--phos-dim);font-weight:400;letter-spacing:.08em}
+
+/* ---- scope ---- */
+.scope-stage{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1}
+.scope-stage svg{position:absolute;inset:0;width:100%;height:100%}
+.sweep{position:absolute;inset:0;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+  background:conic-gradient(from var(--a,0deg),
+    rgba(57,255,122,0) 0deg, rgba(57,255,122,0) 250deg,
+    rgba(57,255,122,.04) 320deg, rgba(57,255,122,.12) 356deg,
+    rgba(120,255,180,.5) 359.3deg, rgba(57,255,122,0) 360deg);
+  animation:sweep 4.6s linear infinite}
+ring{}
+.ring{fill:none;stroke:var(--grid2);stroke-width:1}
+.ring.r-out{stroke:var(--grid)}
+.cross{stroke:var(--grid2);stroke-width:1}
+.az{fill:var(--ink-dim);font-size:9px;letter-spacing:.1em}
+.rng{fill:var(--phos-dim);font-size:8px;opacity:.7}
+.track{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.92;
+  filter:drop-shadow(0 0 4px currentColor)}
+.track.dim{opacity:.18;filter:none}
+.halo{fill:none;stroke-width:1.5;opacity:.9}
+.plane{}
+.db{font-size:9px;letter-spacing:.04em;fill:var(--paper)}
+.db rect{}
+.center{fill:var(--phos)}
+
+/* ---- flight strips ---- */
+.strips{display:flex;flex-direction:column;gap:7px;max-height:560px;overflow:auto}
+.strip{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;
+  border:1px solid var(--grid2);border-left-width:4px;border-radius:6px;padding:7px 9px;
+  background:rgba(6,23,14,.7);cursor:pointer;transition:transform .1s,background .15s,border-color .15s}
+.strip:hover,.strip.sel{background:rgba(14,52,32,.7);transform:translateX(-2px)}
+.strip .rank{color:var(--ink-dim);font-size:11px;text-align:right}
+.strip .cs{color:var(--paper);font-weight:700;letter-spacing:.06em}
+.strip .meta{color:var(--ink-dim);font-size:10px;letter-spacing:.08em;margin-top:1px}
+.strip .sc{text-align:right}
+.strip .sc b{color:var(--paper);font-size:15px}
+.strip .sc .z{color:var(--ink-dim);font-size:9px;letter-spacing:.1em}
+.kind{display:inline-block;font-size:9px;letter-spacing:.12em;padding:1px 6px;border-radius:4px;
+  border:1px solid currentColor}
+.bar{height:3px;border-radius:2px;background:var(--grid2);margin-top:6px;overflow:hidden}
+.bar > i{display:block;height:100%;width:0;border-radius:2px;background:currentColor;
+  transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+
+/* ---- metrics ---- */
+.gauges{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+@media(max-width:760px){.gauges{grid-template-columns:repeat(2,1fr)}}
+.gauge{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:10px;padding:14px}
+.gauge .lab{font-size:10px;letter-spacing:.16em;color:var(--ink-dim)}
+.gauge .val{font-size:30px;font-weight:700;color:var(--paper);margin-top:6px;line-height:1;
+  text-shadow:0 0 14px rgba(57,255,122,.35)}
+.gauge .val .u{font-size:14px;color:var(--phos-dim);margin-left:2px}
+.gauge .sub{font-size:10px;color:var(--ink-dim);margin-top:5px;letter-spacing:.06em}
+.gauge.good .val{color:var(--phos)}
+.gauge.warn .val{color:var(--warn)}
+
+/* ---- patterns + dist ---- */
+.lower{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:14px;margin-top:14px}
+@media(max-width:900px){.lower{grid-template-columns:1fr}}
+.pats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:620px){.pats{grid-template-columns:repeat(2,1fr)}}
+.pat{border:1px solid var(--grid2);border-radius:8px;padding:8px;background:rgba(6,23,14,.6);text-align:center}
+.pat svg{width:100%;height:96px;display:block}
+.pat .pk{font-size:10px;letter-spacing:.12em;font-weight:700;margin-top:4px}
+.pat .pm{font-size:9px;color:var(--ink-dim);letter-spacing:.06em}
+.dist .row{display:grid;grid-template-columns:74px 1fr 40px;gap:8px;align-items:center;margin-bottom:9px}
+.dist .wn{color:var(--paper);font-size:11px;letter-spacing:.06em}
+.dist .track2{height:14px;background:var(--grid2);border-radius:4px;overflow:hidden}
+.dist .track2 > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--phos-dim),var(--phos));
+  transition:width 1s ease-out}
+.dist .cn{color:var(--ink-dim);font-size:11px;text-align:right}
+.spark{display:flex;align-items:flex-end;gap:1px;height:34px;margin-top:6px}
+.spark > i{flex:1;background:var(--phos-dim);border-radius:1px 1px 0 0;min-height:1px;opacity:.8}
+
+.foot{color:var(--ink-dim);font-size:10px;letter-spacing:.1em;text-align:center;margin-top:18px;
+  border-top:1px solid var(--grid2);padding-top:12px}
+.foot b{color:var(--phos-dim)}
+
+@keyframes sweep{to{--a:360deg}}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes blink{50%{opacity:.25}}
+@keyframes pulse{0%,100%{r:3;opacity:1}50%{r:11;opacity:.15}}
+@media(prefers-reduced-motion:reduce){
+  .sweep{animation:none;opacity:.18}
+  .brand .dot{animation:none}
+  .track{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="wrap">
+
+  <header class="status">
+    <div class="top">
+      <span class="brand">ADS-B ANOMALY SCOPE<span class="dot">_</span></span>
+      <span class="tag" id="tag-sector">SECTOR SUDAMÉRICA · DETECCIÓN DISTRIBUIDA NO SUPERVISADA</span>
+    </div>
+    <div class="readout" id="readout"></div>
+  </header>
+
+  <div class="deck">
+    <section class="frame">
+      <h2>RADAR · TOP CONTACTOS ANÓMALOS <span class="hint" id="scope-hint">barrido activo</span></h2>
+      <div class="scope-stage">
+        <svg id="scope" viewBox="0 0 600 600" aria-label="scope de radar"></svg>
+        <div class="sweep" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <aside class="frame">
+      <h2>FLIGHT STRIPS · RANKING <span class="hint">hover = fijar contacto</span></h2>
+      <div class="strips" id="strips"></div>
+    </aside>
+  </div>
+
+  <div class="gauges" id="gauges"></div>
+
+  <div class="lower">
+    <section class="frame">
+      <h2>PATRONES DE MANIOBRA DETECTADOS <span class="hint">un ejemplo por tipo</span></h2>
+      <div class="pats" id="pats"></div>
+    </section>
+    <section class="frame dist">
+      <h2>CÓMPUTO DISTRIBUIDO <span class="hint">reparto de chunks</span></h2>
+      <div id="dist"></div>
+      <div style="font-size:10px;letter-spacing:.12em;color:var(--ink-dim);margin-top:10px">
+        TIEMPO POR CHUNK</div>
+      <div class="spark" id="spark"></div>
+    </section>
+  </div>
+
+  <p class="foot">Generado por <b>adsb_report.py</b> · tarea <b>task_adsb</b> sobre el orquestador
+     distribuido (QEMU) · scoring z-robusto (MAD) · evidencia <b id="foot-job"></b></p>
+</div>
+
+<script>
+const DATA = {"meta": {"job_id": "job-20260624-184816", "task_name": "task_adsb", "workers": [{"name": "local1", "task_host": "127.0.0.1", "task_port": 9101}, {"name": "local2", "task_host": "127.0.0.1", "task_port": 9102}], "healthy_workers": ["local1", "local2"], "n_chunks": 40, "completed": 40, "elapsed": 7.3255, "elapsed_baseline": 12.2864, "speedup": 1.677, "coordinator_location": "host", "payload": {"seed": 7, "num_traj": 60000, "n_chunks": 40, "anomaly_rate": 0.01, "top_k": 10, "n_routes": 6, "z_threshold": 4.0}, "timestamp": "2026-06-24T18:48:23"}, "per_worker": {"local1": {"chunks": 20, "busy_seconds": 7.0013}, "local2": {"chunks": 20, "busy_seconds": 6.9737}}, "per_chunk": [{"chunk_id": 0, "worker": "local1", "seconds": 0.4081}, {"chunk_id": 1, "worker": "local2", "seconds": 0.4058}, {"chunk_id": 2, "worker": "local2", "seconds": 0.3593}, {"chunk_id": 3, "worker": "local1", "seconds": 0.3585}, {"chunk_id": 4, "worker": "local2", "seconds": 0.3481}, {"chunk_id": 5, "worker": "local1", "seconds": 0.3401}, {"chunk_id": 6, "worker": "local2", "seconds": 0.3529}, {"chunk_id": 7, "worker": "local1", "seconds": 0.3635}, {"chunk_id": 8, "worker": "local2", "seconds": 0.3277}, {"chunk_id": 9, "worker": "local1", "seconds": 0.3185}, {"chunk_id": 10, "worker": "local2", "seconds": 0.3542}, {"chunk_id": 11, "worker": "local1", "seconds": 0.3566}, {"chunk_id": 12, "worker": "local2", "seconds": 0.344}, {"chunk_id": 13, "worker": "local1", "seconds": 0.345}, {"chunk_id": 14, "worker": "local2", "seconds": 0.3413}, {"chunk_id": 15, "worker": "local1", "seconds": 0.3473}, {"chunk_id": 16, "worker": "local2", "seconds": 0.352}, {"chunk_id": 17, "worker": "local1", "seconds": 0.3452}, {"chunk_id": 18, "worker": "local2", "seconds": 0.362}, {"chunk_id": 19, "worker": "local1", "seconds": 0.3773}, {"chunk_id": 20, "worker": "local2", "seconds": 0.3455}, {"chunk_id": 21, "worker": "local1", "seconds": 0.3759}, {"chunk_id": 22, "worker": "local2", "seconds": 0.3225}, {"chunk_id": 23, "worker": "local1", "seconds": 0.2829}, {"chunk_id": 24, "worker": "local2", "seconds": 0.2993}, {"chunk_id": 25, "worker": "local1", "seconds": 0.3239}, {"chunk_id": 26, "worker": "local2", "seconds": 0.3554}, {"chunk_id": 27, "worker": "local1", "seconds": 0.3606}, {"chunk_id": 28, "worker": "local2", "seconds": 0.3331}, {"chunk_id": 29, "worker": "local1", "seconds": 0.3433}, {"chunk_id": 30, "worker": "local2", "seconds": 0.3276}, {"chunk_id": 31, "worker": "local1", "seconds": 0.3253}, {"chunk_id": 32, "worker": "local2", "seconds": 0.3576}, {"chunk_id": 33, "worker": "local1", "seconds": 0.3559}, {"chunk_id": 34, "worker": "local2", "seconds": 0.3518}, {"chunk_id": 35, "worker": "local1", "seconds": 0.3786}, {"chunk_id": 36, "worker": "local2", "seconds": 0.3849}, {"chunk_id": 37, "worker": "local1", "seconds": 0.3673}, {"chunk_id": 38, "worker": "local2", "seconds": 0.3487}, {"chunk_id": 39, "worker": "local1", "seconds": 0.3275}], "result": {"n_traj": 60000, "n_injected": 603, "n_normal": 59397, "detected_injected_in_topk": 10, "precision_at_k": 1.0, "recall": 1.0, "false_positive_rate": 0.004091, "precision_threshold": 0.7128, "tp": 603, "fp": 243, "z_threshold": 4.0, "k": 10, "top_k": [{"id": 4477, "route": "SCL-LIM", "score": 650.2076, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.2908, "turn_sum": 1208.7, "vrate_max": 175.1}, "path": [[-33.4038, -70.7748, 34976.1], [-32.6635, -71.0209, 35021.0], [-31.8487, -71.2417, 34945.2], [-31.1399, -71.4471, 35041.7], [-30.4834, -71.7163, 34947.3], [-29.6826, -71.8197, 34881.9], [-28.9408, -72.0828, 34998.1], [-28.2304, -72.3459, 35051.2], [-27.5041, -72.5438, 35010.5], [-26.7165, -72.692, 35092.7], [-26.0327, -72.9309, 34988.5], [-25.2722, -73.2198, 35094.2], [-23.9383, -72.891, 34919.1], [-23.7036, -74.4042, 35010.4], [-23.7908, -73.4539, 35137.1], [-21.6635, -73.6932, 35121.5], [-21.7178, -75.0212, 34960.4], [-21.4438, -73.9503, 34967.0], [-19.3565, -74.5631, 35114.0], [-19.643, -75.6835, 34969.8], [-19.1594, -74.4877, 35003.8], [-17.9228, -75.418, 35065.5], [-17.1424, -75.6072, 34970.9], [-16.4268, -75.8623, 35047.9], [-15.6912, -76.0476, 35002.3], [-14.9654, -76.2198, 34944.1], [-14.2321, -76.4296, 34912.9], [-13.5331, -76.6702, 34904.9], [-12.7452, -76.8984, 34950.2], [-11.9723, -77.1366, 35020.1]]}, {"id": 37827, "route": "SCL-LIM", "score": 646.16, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.1932, "turn_sum": 1048.164, "vrate_max": 263.4}, "path": [[-33.379, -70.7728, 34867.4], [-32.5765, -71.0171, 35113.3], [-31.8957, -71.2471, 34917.1], [-31.1565, -71.43, 35145.6], [-30.404, -71.6865, 34936.9], [-29.7035, -71.9084, 34881.6], [-28.9603, -72.1039, 35064.9], [-28.2257, -72.288, 35175.4], [-27.493, -72.5307, 34912.0], [-26.7746, -72.7047, 35068.9], [-26.0676, -72.9986, 34953.9], [-25.2662, -73.1792, 35011.1], [-24.1203, -73.0143, 34960.5], [-23.7028, -74.2419, 34910.4], [-23.617, -73.4814, 34986.5], [-21.7773, -73.7228, 34961.7], [-21.698, -74.8825, 34928.7], [-21.2915, -74.0808, 35037.1], [-19.5589, -74.5432, 34900.5], [-19.5969, -75.5469, 34978.2], [-19.0692, -74.6699, 35034.3], [-17.8749, -75.3051, 35011.1], [-17.1917, -75.5694, 35001.1], [-16.4217, -75.8209, 35180.9], [-15.7035, -76.0389, 35002.1], [-14.9958, -76.2771, 34966.4], [-14.1934, -76.3851, 35038.8], [-13.4879, -76.7174, 35037.4], [-12.8478, -76.9082, 34991.8], [-12.0024, -77.0685, 35025.6]]}, {"id": 10744, "route": "LIM-BOG", "score": 626.4662, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.4669, "turn_sum": 1346.767, "vrate_max": 262.2}, "path": [[-11.9949, -77.0902, 35908.8], [-11.4459, -77.0187, 36171.0], [-10.8983, -76.8786, 35935.3], [-10.2926, -76.7842, 35927.9], [-9.6945, -76.7492, 36038.4], [-9.1288, -76.571, 36109.3], [-8.586, -76.5296, 36140.4], [-8.0362, -76.4342, 35992.9], [-7.3849, -76.3201, 36084.0], [-6.8578, -76.2154, 35986.4], [-6.2904, -76.0982, 36023.3], [-5.6964, -75.9758, 36035.5], [-4.5514, -75.3535, 35988.3], [-4.4267, -76.5823, 36062.9], [-4.6538, -75.3402, 36085.6], [-2.7224, -75.1973, 35956.2], [-2.9141, -76.2796, 36007.7], [-2.8285, -74.8531, 35832.8], [-0.9147, -75.0538, 35958.4], [-1.2748, -75.8733, 36115.4], [-0.955, -74.4599, 35920.7], [0.1107, -75.0489, 36041.4], [0.6381, -74.8593, 35946.0], [1.2922, -74.8294, 36068.0], [1.7976, -74.646, 36069.6], [2.4458, -74.6373, 35963.5], [2.9627, -74.4463, 35859.9], [3.5039, -74.341, 36109.7], [4.1278, -74.2736, 36048.3], [4.7067, -74.1623, 36023.0]]}, {"id": 16529, "route": "SCL-LIM", "score": 589.1657, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.1762, "turn_sum": 912.093, "vrate_max": 270.0}, "path": [[-33.3527, -70.7789, 34971.8], [-32.6346, -71.0308, 34971.6], [-31.9496, -71.2498, 35109.1], [-31.1814, -71.4056, 34951.5], [-30.4468, -71.6774, 35000.0], [-29.7079, -71.8109, 34847.3], [-28.9219, -72.1013, 34888.8], [-28.2707, -72.2976, 35111.9], [-27.53, -72.5466, 34996.9], [-26.7227, -72.8388, 35055.2], [-26.0378, -72.9872, 35009.4], [-25.251, -73.1913, 35016.3], [-24.1001, -72.8081, 34946.3], [-23.0981, -73.9845, 35061.8], [-23.3804, -74.5809, 35014.8], [-23.0787, -73.8722, 35077.5], [-21.4948, -73.5074, 35065.4], [-20.0549, -74.4377, 35024.8], [-20.0062, -75.4619, 35087.6], [-20.2317, -75.1684, 34817.6], [-18.949, -74.4124, 34995.8], [-17.9574, -75.3602, 35067.6], [-17.1818, -75.5957, 34968.1], [-16.3916, -75.7931, 35049.8], [-15.6831, -76.0531, 35066.7], [-14.955, -76.2118, 35070.2], [-14.2259, -76.4376, 34905.4], [-13.4867, -76.6801, 35091.8], [-12.7366, -76.8874, 34973.6], [-12.0329, -77.1422, 34881.0]]}, {"id": 23708, "route": "SCL-LIM", "score": 587.4795, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.1757, "turn_sum": 885.293, "vrate_max": 308.2}, "path": [[-33.3665, -70.7969, 35018.5], [-32.6762, -71.0084, 35018.5], [-31.929, -71.2456, 35028.2], [-31.227, -71.45, 35074.1], [-30.4379, -71.7143, 35080.0], [-29.7464, -71.8834, 35032.1], [-28.9817, -72.084, 35012.3], [-28.2067, -72.2784, 34985.8], [-27.4818, -72.5342, 35049.4], [-26.7822, -72.7435, 35044.3], [-26.0142, -72.8843, 35036.1], [-25.2966, -73.176, 35022.0], [-24.0801, -72.7665, 34978.7], [-23.091, -73.9823, 35004.9], [-23.3297, -74.6246, 35009.3], [-23.1434, -73.865, 34807.1], [-21.5673, -73.5121, 34946.4], [-20.0594, -74.4832, 35034.1], [-19.9725, -75.4826, 35059.2], [-20.1076, -75.1776, 35163.9], [-18.9507, -74.3837, 34855.7], [-17.9076, -75.37, 35065.0], [-17.1555, -75.5922, 35066.6], [-16.4179, -75.8081, 35002.9], [-15.7393, -76.0012, 34918.0], [-14.9428, -76.2183, 35041.5], [-14.26, -76.4506, 34939.7], [-13.513, -76.6699, 35110.8], [-12.7578, -76.8736, 34943.0], [-12.0354, -77.0485, 34861.6]]}, {"id": 37916, "route": "LIM-BOG", "score": 580.466, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.4327, "turn_sum": 1245.72, "vrate_max": 324.5}, "path": [[-12.0167, -77.0862, 35990.9], [-11.4367, -76.9976, 36095.2], [-10.8407, -76.9209, 35893.5], [-10.3034, -76.8053, 36041.8], [-9.6933, -76.7222, 35988.1], [-9.1175, -76.5683, 36126.7], [-8.61, -76.4781, 36062.4], [-7.97, -76.3967, 36157.9], [-7.4463, -76.3153, 36032.1], [-6.8064, -76.1527, 36016.4], [-6.1932, -76.0869, 36149.4], [-5.6825, -75.9078, 36073.8], [-4.5019, -75.404, 36023.0], [-4.4153, -76.5466, 35939.5], [-4.6435, -75.283, 36035.7], [-2.7809, -75.2649, 36076.8], [-2.857, -76.1841, 36163.3], [-2.752, -74.8865, 36054.8], [-0.8998, -75.0913, 36095.3], [-1.3651, -75.8959, 36178.5], [-0.9649, -74.515, 35854.0], [0.0938, -74.9752, 36035.7], [0.6989, -74.8401, 36102.6], [1.2264, -74.7607, 35977.8], [1.7985, -74.655, 35958.2], [2.4291, -74.5866, 35988.9], [2.9705, -74.4558, 35999.1], [3.5426, -74.3713, 35972.0], [4.1203, -74.2768, 35987.0], [4.6992, -74.1577, 36046.2]]}, {"id": 13471, "route": "SCL-LIM", "score": 562.5234, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.1683, "turn_sum": 1008.297, "vrate_max": 193.4}, "path": [[-33.3505, -70.7936, 35021.9], [-32.6643, -70.9634, 34932.1], [-31.9275, -71.2261, 35017.3], [-31.1557, -71.3977, 35057.3], [-30.3853, -71.7072, 34942.6], [-29.7211, -71.855, 35057.4], [-28.9957, -72.0531, 34929.9], [-28.2224, -72.3036, 35059.4], [-27.5218, -72.5226, 35001.4], [-26.76, -72.7351, 34971.4], [-26.0136, -72.9525, 35011.6], [-25.2802, -73.2198, 35021.8], [-24.124, -73.0588, 34955.3], [-23.7786, -74.1816, 35078.7], [-23.6409, -73.5524, 34896.1], [-21.8651, -73.8045, 34971.9], [-21.7213, -74.8782, 34987.3], [-21.3162, -74.1528, 34988.7], [-19.5806, -74.5867, 35086.1], [-19.5358, -75.4956, 34981.6], [-18.9727, -74.6338, 34994.5], [-17.9016, -75.393, 35041.8], [-17.2004, -75.6129, 35017.7], [-16.4373, -75.8349, 34874.0], [-15.7341, -76.0242, 34892.3], [-14.9074, -76.2945, 34982.5], [-14.2528, -76.4082, 35175.9], [-13.4704, -76.6576, 35129.1], [-12.7036, -76.9009, 35111.5], [-12.0351, -77.1166, 34965.5]]}, {"id": 28024, "route": "LIM-BOG", "score": 560.7709, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.4181, "turn_sum": 1324.173, "vrate_max": 306.9}, "path": [[-12.0288, -77.0868, 35977.1], [-11.3868, -77.0362, 35982.2], [-10.8227, -76.8422, 36110.1], [-10.2855, -76.8087, 36127.8], [-9.7486, -76.684, 36105.2], [-9.1491, -76.5984, 36126.0], [-8.6183, -76.5363, 35998.3], [-7.9534, -76.4282, 36017.5], [-7.3818, -76.3263, 35986.9], [-6.8394, -76.2112, 35897.7], [-6.2215, -76.1121, 36024.7], [-5.6298, -76.0211, 35933.2], [-4.5967, -75.4116, 35983.6], [-4.4566, -76.5557, 35923.0], [-4.6181, -75.3283, 35899.4], [-2.7204, -75.2249, 36105.0], [-2.8483, -76.1712, 36057.8], [-2.7364, -74.8824, 35939.1], [-0.95, -75.0956, 36053.9], [-1.2823, -75.869, 35933.8], [-0.8828, -74.5223, 35977.7], [0.0702, -74.9947, 35942.8], [0.6862, -74.8854, 36062.3], [1.279, -74.7658, 36147.6], [1.8332, -74.5853, 35840.7], [2.4225, -74.6048, 36051.0], [2.9721, -74.4218, 36103.7], [3.5297, -74.3731, 36055.2], [4.1025, -74.2839, 35992.9], [4.6789, -74.0853, 35843.6]]}, {"id": 38191, "route": "SCL-LIM", "score": 560.1627, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.1677, "turn_sum": 887.027, "vrate_max": 256.2}, "path": [[-33.3759, -70.7548, 34992.8], [-32.648, -70.9906, 34954.7], [-31.9106, -71.2329, 34973.0], [-31.1544, -71.4976, 34953.3], [-30.4461, -71.6773, 35009.9], [-29.6666, -71.8909, 35115.9], [-28.9672, -72.1568, 35015.2], [-28.2649, -72.3482, 35023.6], [-27.4519, -72.5213, 35064.8], [-26.7172, -72.7423, 35037.4], [-25.9783, -72.9636, 35100.9], [-25.2857, -73.1847, 35045.1], [-24.1425, -72.7723, 34881.7], [-23.1266, -73.9386, 35078.5], [-23.3608, -74.5964, 34965.2], [-23.0717, -73.8995, 35086.5], [-21.5833, -73.5476, 35124.9], [-20.0932, -74.4402, 34868.7], [-20.0404, -75.4886, 35029.4], [-20.1399, -75.1439, 35107.4], [-18.9807, -74.4255, 35004.0], [-17.9265, -75.4288, 34943.3], [-17.1901, -75.5582, 35160.0], [-16.4084, -75.7906, 34996.6], [-15.7226, -75.9676, 34977.2], [-14.962, -76.2276, 34946.4], [-14.2745, -76.464, 35105.1], [-13.4995, -76.6851, 35074.3], [-12.7531, -76.9159, 34948.1], [-12.0001, -77.1014, 34999.2]]}, {"id": 42363, "route": "EZE-GRU", "score": 542.8294, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.4061, "turn_sum": 1296.131, "vrate_max": 188.5}, "path": [[-34.8629, -58.5647, 36998.6], [-34.4635, -58.1564, 36906.6], [-33.9992, -57.6849, 36883.0], [-33.6256, -57.2947, 37010.7], [-33.2679, -56.8942, 36941.2], [-32.8476, -56.4527, 36935.5], [-32.5006, -56.0156, 36925.3], [-32.0659, -55.626, 36995.4], [-31.6724, -55.1692, 37057.3], [-31.2705, -54.7926, 36973.3], [-30.8833, -54.3661, 37011.5], [-30.5216, -53.9784, 36962.1], [-29.525, -53.0749, 36847.1], [-29.6437, -53.8162, 36880.2], [-29.9513, -52.3586, 36918.8], [-28.3178, -51.9632, 36910.5], [-28.6137, -52.6119, 37077.3], [-28.6796, -51.0063, 36949.8], [-27.0476, -50.8621, 36937.9], [-27.5558, -51.3283, 36940.3], [-27.4088, -49.6126, 37068.2], [-26.5327, -49.8283, 37012.4], [-26.2065, -49.3576, 37048.4], [-25.797, -48.9683, 37148.8], [-25.3347, -48.558, 37090.0], [-24.9719, -48.0641, 36901.5], [-24.5919, -47.742, 37081.9], [-24.2349, -47.3549, 37072.7], [-23.8485, -46.8467, 37031.6], [-23.4628, -46.4333, 37035.6]]}], "examples_by_type": {"descenso_anomalo": {"id": 25526, "route": "SCL-GRU", "score": 21.2407, "reason": "vrate_max", "injected": true, "atype": "descenso_anomalo", "feats": {"len_ratio": 1.0032, "turn_sum": 68.077, "vrate_max": 1269.4}, "path": [[-33.4222, -70.79, 38118.6], [-33.0808, -69.9653, 37948.4], [-32.7275, -69.0593, 37890.8], [-32.371, -68.2746, 37904.7], [-32.0172, -67.3889, 38101.9], [-31.6882, -66.5518, 38008.4], [-31.3307, -65.7067, 38084.3], [-31.0198, -64.8887, 37977.3], [-30.6177, -64.0907, 38111.3], [-30.2389, -63.201, 37983.5], [-29.9477, -62.475, 38028.5], [-29.5814, -61.5255, 38000.3], [-29.2459, -60.6919, 38001.2], [-28.8795, -59.9181, 38046.6], [-28.5539, -59.0797, 37781.3], [-28.2256, -58.1764, 37448.0], [-27.9248, -57.3629, 36443.6], [-27.5015, -56.4922, 35535.8], [-27.2068, -55.6611, 34522.2], [-26.8691, -54.8638, 33499.5], [-26.5219, -54.0307, 32445.4], [-26.1472, -53.1901, 31509.7], [-25.8533, -52.3855, 30467.4], [-25.502, -51.4867, 29544.8], [-25.1809, -50.7053, 28420.7], [-24.799, -49.8297, 27494.8], [-24.4711, -49.0013, 26225.4], [-24.1302, -48.1904, 25260.2], [-23.7572, -47.2771, 24479.8], [-23.4364, -46.4408, 23278.6]]}, "rodeo": {"id": 12785, "route": "SCL-LIM", "score": 199.9858, "reason": "len_ratio", "injected": true, "atype": "rodeo", "feats": {"len_ratio": 1.0608, "turn_sum": 141.545, "vrate_max": 240.7}, "path": [[-33.3904, -70.751, 34879.0], [-32.2441, -70.7967, 35026.3], [-31.1028, -70.7781, 35038.7], [-29.9782, -70.7075, 35100.8], [-28.8586, -70.6567, 35134.1], [-27.6648, -70.6436, 35018.0], [-26.6739, -70.7212, 34974.2], [-25.5934, -70.7029, 35135.6], [-24.5903, -70.7525, 34973.3], [-23.6151, -70.8688, 34915.6], [-22.6119, -70.9512, 34862.6], [-21.7442, -71.0352, 35083.7], [-20.823, -71.1976, 34927.7], [-20.0639, -71.3358, 34969.2], [-19.2698, -71.5703, 34843.3], [-18.565, -71.7551, 34981.0], [-17.8295, -72.0738, 35086.7], [-17.2065, -72.2298, 34890.2], [-16.6413, -72.626, 34854.4], [-16.0505, -72.8752, 34995.4], [-15.4977, -73.2266, 34962.6], [-15.0365, -73.6151, 34994.8], [-14.5827, -74.0078, 35071.2], [-14.1431, -74.4056, 34830.5], [-13.7823, -74.8037, 34988.5], [-13.4159, -75.2497, 34970.1], [-13.0099, -75.6685, 35006.4], [-12.6444, -76.1692, 35035.7], [-12.3687, -76.6507, 34947.6], [-12.0429, -77.1036, 35045.0]]}, "go_around": {"id": 30347, "route": "LIM-BOG", "score": 26.4006, "reason": "vrate_max", "injected": true, "atype": "go_around", "feats": {"len_ratio": 1.0017, "turn_sum": 113.316, "vrate_max": 1466.9}, "path": [[-11.9819, -77.1979, 35882.6], [-11.458, -77.0223, 34911.5], [-10.855, -76.8858, 33444.6], [-10.2512, -76.7911, 32284.5], [-9.7139, -76.6872, 31209.6], [-9.1971, -76.6266, 30191.3], [-8.5445, -76.509, 29097.2], [-8.0323, -76.4052, 28068.6], [-7.3509, -76.2805, 27353.5], [-6.7785, -76.164, 26578.7], [-6.2859, -76.078, 25929.1], [-5.6908, -75.9939, 25524.2], [-5.0649, -75.862, 24954.0], [-4.5325, -75.7961, 24724.7], [-3.9695, -75.6795, 24594.8], [-3.3921, -75.5783, 24683.5], [-2.746, -75.5043, 24682.9], [-2.2285, -75.3683, 25079.1], [-1.6406, -75.2468, 25559.7], [-1.0721, -75.1445, 25884.5], [-0.552, -75.0987, 26529.4], [0.071, -74.9996, 27391.0], [0.7006, -74.9106, 28071.4], [1.2096, -74.7138, 29215.4], [1.7805, -74.6055, 30078.9], [2.4106, -74.5285, 31333.8], [3.0227, -74.4093, 32242.9], [3.5402, -74.3522, 33629.7], [4.1298, -74.2304, 34968.5], [4.748, -74.154, 35979.2]]}, "holding": {"id": 4477, "route": "SCL-LIM", "score": 650.2076, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 1.2908, "turn_sum": 1208.7, "vrate_max": 175.1}, "path": [[-33.4038, -70.7748, 34976.1], [-32.6635, -71.0209, 35021.0], [-31.8487, -71.2417, 34945.2], [-31.1399, -71.4471, 35041.7], [-30.4834, -71.7163, 34947.3], [-29.6826, -71.8197, 34881.9], [-28.9408, -72.0828, 34998.1], [-28.2304, -72.3459, 35051.2], [-27.5041, -72.5438, 35010.5], [-26.7165, -72.692, 35092.7], [-26.0327, -72.9309, 34988.5], [-25.2722, -73.2198, 35094.2], [-23.9383, -72.891, 34919.1], [-23.7036, -74.4042, 35010.4], [-23.7908, -73.4539, 35137.1], [-21.6635, -73.6932, 35121.5], [-21.7178, -75.0212, 34960.4], [-21.4438, -73.9503, 34967.0], [-19.3565, -74.5631, 35114.0], [-19.643, -75.6835, 34969.8], [-19.1594, -74.4877, 35003.8], [-17.9228, -75.418, 35065.5], [-17.1424, -75.6072, 34970.9], [-16.4268, -75.8623, 35047.9], [-15.6912, -76.0476, 35002.3], [-14.9654, -76.2198, 34944.1], [-14.2321, -76.4296, 34912.9], [-13.5331, -76.6702, 34904.9], [-12.7452, -76.8984, 34950.2], [-11.9723, -77.1366, 35020.1]]}}}, "bbox": {"min_lat": -34.8629, "max_lat": 4.748, "min_lon": -77.1979, "max_lon": -46.4333}};
+const M = DATA.meta, R = DATA.result;
+const TYPE_COLOR = {rodeo:'#3fd0ff', holding:'#ffb000', descenso_anomalo:'#ff5247', go_around:'#c77dff', normal:'#39ff7a'};
+const TYPE_NAME  = {rodeo:'RODEO', holding:'HOLDING', descenso_anomalo:'DESCENSO', go_around:'GO-AROUND'};
+const REASON     = {len_ratio:'desvío de ruta', turn_sum:'curvatura', vrate_max:'tasa vertical'};
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+const SVGNS = 'http://www.w3.org/2000/svg';
+const el = (n,a={})=>{const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const pct = v => (v==null?'—':(v*100).toFixed(v>=0.999?0:1));
+const colOf = t => TYPE_COLOR[t&&t.atype] || TYPE_COLOR.normal;
+
+/* ---------- status readout ---------- */
+(function(){
+  const nodes = (M.healthy_workers&&M.healthy_workers.length?M.healthy_workers:(M.workers||[]).map(w=>w.name)).join(' · ')||'—';
+  const cells = [
+    ['CONTACTOS', (R.n_traj||0).toLocaleString('es')],
+    ['INYECTADAS', R.n_injected||0],
+    ['NODOS', nodes],
+    ['CHUNKS', (M.completed||0)+'/'+(M.n_chunks||0)],
+    ['T', (M.elapsed!=null?M.elapsed+'s':'—')],
+    ['JOB', M.job_id||'—'],
+  ];
+  document.getElementById('readout').innerHTML = cells.map(c=>
+    `<span class="cell alert">${c[0]} <b>${c[1]}</b></span>`).join('');
+  document.getElementById('foot-job').textContent = M.job_id||'';
+})();
+
+/* ---------- proyección geográfica al scope ---------- */
+const CX=300, CY=300, RAD=270;
+function proj(lat, lon){
+  const b=DATA.bbox;
+  const mlat=(b.min_lat+b.max_lat)/2, mlon=(b.min_lon+b.max_lon)/2;
+  const span=Math.max(b.max_lat-b.min_lat, b.max_lon-b.min_lon, 0.01);
+  const sc=(RAD*1.62)/span;
+  return [CX+(lon-mlon)*sc, CY-(lat-mlat)*sc];
+}
+const dOf = path => path.map((p,i)=>{const xy=proj(p[0],p[1]);return (i?'L':'M')+xy[0].toFixed(1)+' '+xy[1].toFixed(1);}).join(' ');
+function farthestIdx(path){ // waypoint mas lejos de la recta origen-destino (la maniobra)
+  const a=proj(path[0][0],path[0][1]), b=proj(path[path.length-1][0],path[path.length-1][1]);
+  let bi=0,bd=-1; const L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+  for(let i=1;i<path.length-1;i++){const p=proj(path[i][0],path[i][1]);
+    const d=Math.abs((b[1]-a[1])*p[0]-(b[0]-a[0])*p[1]+b[0]*a[1]-b[1]*a[0])/L;
+    if(d>bd){bd=d;bi=i;}}
+  return bi;
+}
+
+/* ---------- construir el scope ---------- */
+const scope = document.getElementById('scope');
+function gridScope(){
+  const g=el('g');
+  [RAD,RAD*0.72,RAD*0.46,RAD*0.2].forEach((r,i)=>{
+    g.appendChild(el('circle',{class:'ring'+(i===0?' r-out':''),cx:CX,cy:CY,r}));});
+  g.appendChild(el('line',{class:'cross',x1:CX-RAD,y1:CY,x2:CX+RAD,y2:CY}));
+  g.appendChild(el('line',{class:'cross',x1:CX,y1:CY-RAD,x2:CX,y2:CY+RAD}));
+  for(let a=0;a<360;a+=30){
+    const rad=(a-90)*Math.PI/180, x=CX+Math.cos(rad)*(RAD+12), y=CY+Math.sin(rad)*(RAD+12);
+    const t=el('text',{class:'az',x,y,'text-anchor':'middle','dominant-baseline':'middle'});
+    t.textContent=String(a).padStart(3,'0'); g.appendChild(t);
+  }
+  g.appendChild(el('circle',{class:'center',cx:CX,cy:CY,r:2.5}));
+  scope.appendChild(g);
+}
+gridScope();
+
+const planes=[]; // {pathEl,len,plane,dir,color}
+const trackById={};
+function drawTracks(){
+  const clip=el('clipPath',{id:'scopeclip'}); clip.appendChild(el('circle',{cx:CX,cy:CY,r:RAD-2}));
+  scope.appendChild(clip);
+  const layer=el('g',{'clip-path':'url(#scopeclip)'}); scope.appendChild(layer);
+  const maxScore=Math.max(...R.top_k.map(t=>t.score),1);
+  R.top_k.forEach((t,i)=>{
+    const color=colOf(t), d=dOf(t.path);
+    const pth=el('path',{class:'track',d,stroke:color,'data-id':t.id});
+    layer.appendChild(pth);
+    // halo en la maniobra
+    const fp=proj(...[t.path[farthestIdx(t.path)][0],t.path[farthestIdx(t.path)][1]]);
+    const halo=el('circle',{class:'halo',cx:fp[0],cy:fp[1],r:3,stroke:color});
+    if(!reduce) halo.style.animation=`pulse ${1.6+ (i%4)*0.25}s ease-in-out ${i*0.12}s infinite`;
+    layer.appendChild(halo);
+    // avion (triangulo apuntando a +x)
+    const plane=el('polygon',{class:'plane',points:'9,0 -6,5 -6,-5',fill:color,
+      stroke:'#04100a','stroke-width':'.6'});
+    layer.appendChild(plane);
+    // datablock (oculto; aparece al seleccionar)
+    const db=el('g',{class:'db','data-db':t.id,opacity:0});
+    const txt=el('text',{x:0,y:0});
+    txt.textContent=`#${i+1} ${t.route} ${TYPE_NAME[t.atype]||''} z${Math.round(t.score)}`;
+    db.appendChild(txt); layer.appendChild(db);
+    const L=pth.getTotalLength();
+    if(!reduce){pth.style.strokeDasharray=L;pth.style.strokeDashoffset=L;}
+    planes.push({pth,L,plane,db,txt,color,len:t.path.length});
+    trackById[t.id]={pth,db,plane,halo};
+  });
+}
+drawTracks();
+
+/* ---------- animación: trazado en cascada + aviones recorriendo ---------- */
+function revealAndFly(){
+  planes.forEach((o,i)=>{
+    if(!reduce){
+      o.pth.animate([{strokeDashoffset:o.L},{strokeDashoffset:0}],
+        {duration:1100,delay:i*150,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
+    }
+  });
+  let t0=null;
+  function frame(ts){
+    if(t0==null)t0=ts;
+    const base=(ts-t0)/5200; // periodo de vuelo
+    planes.forEach((o,i)=>{
+      const u=((base+i/planes.length)%1);
+      const pt=o.pth.getPointAtLength(u*o.L);
+      const pt2=o.pth.getPointAtLength(Math.min(o.L,u*o.L+1));
+      const ang=Math.atan2(pt2.y-pt.y,pt2.x-pt.x)*180/Math.PI;
+      o.plane.setAttribute('transform',`translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)}) rotate(${ang.toFixed(0)})`);
+      if(+o.db.getAttribute('opacity')>0) o.db.setAttribute('transform',`translate(${(pt.x+10).toFixed(1)},${(pt.y-8).toFixed(1)})`);
+    });
+    requestAnimationFrame(frame);
+  }
+  if(!reduce) requestAnimationFrame(frame);
+  else planes.forEach(o=>{const pt=o.pth.getPointAtLength(o.L*0.5);
+    o.plane.setAttribute('transform',`translate(${pt.x},${pt.y})`);});
+}
+revealAndFly();
+
+/* ---------- flight strips ---------- */
+const stripsEl=document.getElementById('strips');
+const maxScore=Math.max(...R.top_k.map(t=>t.score),1);
+R.top_k.forEach((t,i)=>{
+  const color=colOf(t);
+  const s=document.createElement('div');
+  s.className='strip'; s.style.borderLeftColor=color; s.dataset.id=t.id;
+  s.innerHTML=`
+    <div class="rank">${String(i+1).padStart(2,'0')}</div>
+    <div>
+      <div class="cs">${t.route} <span class="kind" style="color:${color}">${TYPE_NAME[t.atype]||'—'}</span></div>
+      <div class="meta">ICAO ${String(t.id).padStart(5,'0')} · ${REASON[t.reason]||t.reason} · ${t.injected?'GROUND-TRUTH ✓':'—'}</div>
+      <div class="bar" style="color:${color}"><i data-w="${(t.score/maxScore*100).toFixed(1)}"></i></div>
+    </div>
+    <div class="sc"><b>${Math.round(t.score)}</b><div class="z">σ-ROB</div></div>`;
+  const hi=on=>{ for(const id in trackById){const o=trackById[id];
+      o.pth.classList.toggle('dim', on && +id!==t.id);}
+    const o=trackById[t.id]; if(o){o.db.setAttribute('opacity',on?1:0);}
+    s.classList.toggle('sel',on);};
+  s.addEventListener('mouseenter',()=>hi(true));
+  s.addEventListener('mouseleave',()=>hi(false));
+  stripsEl.appendChild(s);
+});
+requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(b=>b.style.width=b.dataset.w+'%'));
+
+/* ---------- gauges (count-up) ---------- */
+function gauge(lab,val,cls,sub){return `<div class="gauge ${cls}"><div class="lab">${lab}</div>
+  <div class="val" data-to="${val.to}" data-dec="${val.dec||0}" data-suf="${val.suf||''}">0${val.suf||''}</div>
+  <div class="sub">${sub}</div></div>`;}
+document.getElementById('gauges').innerHTML=[
+  gauge('PRECISION@'+R.k,{to:(R.precision_at_k||0)*100,suf:'%'},'good','top-k que son anomalías reales'),
+  gauge('RECALL',{to:(R.recall||0)*100,suf:'%'},'good','anomalías detectadas (umbral σ≥'+R.z_threshold+')'),
+  gauge('FALSOS POS.',{to:(R.false_positive_rate||0)*100,dec:2,suf:'%'},((R.false_positive_rate||0)<0.02?'good':'warn'),'normales marcadas por error'),
+  gauge('SPEEDUP',{to:M.speedup||0,dec:2,suf:'×'},((M.speedup||0)>=1?'good':'warn'),(M.elapsed||'?')+'s vs '+(M.elapsed_baseline||'?')+'s base'),
+  gauge('TP / FP',{to:R.tp||0},'','vs '+(R.fp||0)+' falsos · σ-robusto'),
+].join('');
+document.querySelectorAll('.gauge .val').forEach(v=>{
+  const to=+v.dataset.to, dec=+v.dataset.dec, suf=v.dataset.suf;
+  if(reduce){v.innerHTML=to.toFixed(dec)+`<span class="u">${suf}</span>`;return;}
+  let t0=null; const dur=1000;
+  function step(ts){if(t0==null)t0=ts;const k=Math.min(1,(ts-t0)/dur);const e=1-Math.pow(1-k,3);
+    v.innerHTML=(to*e).toFixed(dec)+`<span class="u">${suf}</span>`;if(k<1)requestAnimationFrame(step);}
+  requestAnimationFrame(step);
+});
+
+/* ---------- mini-scopes por patrón ---------- */
+const patsEl=document.getElementById('pats');
+['rodeo','holding','descenso_anomalo','go_around'].forEach(tp=>{
+  const t=R.examples_by_type[tp]; const color=TYPE_COLOR[tp];
+  const div=document.createElement('div'); div.className='pat';
+  if(!t){div.innerHTML=`<div style="height:96px;display:flex;align-items:center;justify-content:center;color:var(--ink-dim);font-size:10px">SIN MUESTRA</div>
+    <div class="pk" style="color:${color}">${TYPE_NAME[tp]}</div>`;patsEl.appendChild(div);return;}
+  // mini svg con bbox propio del path
+  const lats=t.path.map(p=>p[0]),lons=t.path.map(p=>p[1]);
+  const mnla=Math.min(...lats),mxla=Math.max(...lats),mnlo=Math.min(...lons),mxlo=Math.max(...lons);
+  const span=Math.max(mxla-mnla,mxlo-mnlo,0.01), s=70/span;
+  const d=t.path.map((p,i)=>{const x=50+(p[1]-(mnlo+mxlo)/2)*s,y=48-(p[0]-(mnla+mxla)/2)*s;
+    return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}).join(' ');
+  const ns='http://www.w3.org/2000/svg';
+  div.innerHTML=`<svg viewBox="0 0 100 96"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"
+      stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 3px ${color})"/></svg>
+    <div class="pk" style="color:${color}">${TYPE_NAME[tp]}</div>
+    <div class="pm">${t.route} · z${Math.round(t.score)} · ${REASON[t.reason]||t.reason}</div>`;
+  // animar trazado
+  const path=div.querySelector('path');
+  if(!reduce){const L=path.getTotalLength();path.style.strokeDasharray=L;path.style.strokeDashoffset=L;
+    path.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:1200,delay:300,fill:'forwards',easing:'ease-out'});}
+  patsEl.appendChild(div);
+});
+
+/* ---------- distribución por worker + sparkline ---------- */
+(function(){
+  const pw=DATA.per_worker||{}; const names=Object.keys(pw);
+  const maxc=Math.max(1,...names.map(n=>pw[n].chunks||0));
+  document.getElementById('dist').innerHTML=names.map(n=>{
+    const c=pw[n].chunks||0, sec=(pw[n].busy_seconds||0).toFixed(1);
+    return `<div class="row"><div class="wn">${n}</div>
+      <div class="track2"><i data-w="${(c/maxc*100).toFixed(0)}"></i></div>
+      <div class="cn">${c} <span style="opacity:.6">· ${sec}s</span></div></div>`;}).join('')
+    || '<div style="color:var(--ink-dim);font-size:11px">sin datos de workers</div>';
+  requestAnimationFrame(()=>document.querySelectorAll('.dist .track2 > i').forEach(b=>b.style.width=b.dataset.w+'%'));
+  const pc=DATA.per_chunk||[]; const mx=Math.max(1,...pc.map(c=>c.seconds||0));
+  document.getElementById('spark').innerHTML=pc.map(c=>
+    `<i style="height:${Math.max(4,(c.seconds||0)/mx*100)}%" title="chunk ${c.chunk_id}: ${c.seconds}s @${c.worker}"></i>`).join('');
+})();
+</script>
+</body>
+</html>

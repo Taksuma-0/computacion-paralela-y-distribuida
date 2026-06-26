@@ -1,0 +1,15 @@
+Registro minimo de entorno
+Fecha local: 2026-05-23 16:51:09
+Sistema operativo: Microsoft Windows 11 Home Single Language 10.0.26200
+CPU: AMD Ryzen 7 6800H with Radeon Graphics         
+Nucleos fisicos: 8
+Hilos logicos: 16
+RAM aproximada GiB: 15.26
+Python: Python 3.13.5
+Compilador C++: g++.exe (MinGW-W64 x86_64-ucrt-posix-seh, built by Brecht Sanders, r8) 13.2.0
+Ruta g++: C:\Strawberry\c\bin\g++.exe
+Comando OpenMP: g++ -O3 -std=c++20 -fopenmp normalizacion.cpp -o normalizacion.exe
+Variables OpenMP medidas: OMP_NUM_THREADS=1,2,4,8
+Datos OpenMP: matriz sintetica reproducible 10.000.000 x 16 para tabla comparativa; verificacion adicional 50.000.000 x 16 con 8 hilos.
+Datos logs: muestra local 16 MiB comprimidos, generador parametrizado para 2 GiB comprimidos.
+Datos embeddings: 20.000 vectores sinteticos reproducibles de dimension 128 normalizados a norma 1.

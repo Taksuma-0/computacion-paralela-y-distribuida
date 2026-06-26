@@ -1,0 +1,26 @@
+# LaTeX auxiliares
+*.aux
+*.log
+*.out
+*.toc
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.bbl
+*.blg
+
+# Compilados C/C++
+*.exe
+*.o
+*.obj
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+
+# Sistema
+.DS_Store
+Thumbs.db

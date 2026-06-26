@@ -1,0 +1,332 @@
+{
+  "job_id": "local-etl",
+  "task": "task_etl.py",
+  "task_name": "task_etl",
+  "payload": {
+    "seed": 7,
+    "num_rows": 500000,
+    "n_chunks": 32
+  },
+  "coordinator_location": "host-2agentes",
+  "workers": [
+    {
+      "name": "local1",
+      "task_host": "127.0.0.1",
+      "task_port": 9001
+    },
+    {
+      "name": "local2",
+      "task_host": "127.0.0.1",
+      "task_port": 9002
+    }
+  ],
+  "healthy_workers": [
+    "local1",
+    "local2"
+  ],
+  "n_chunks": 32,
+  "completed": 32,
+  "elapsed": 0.6751,
+  "elapsed_baseline": 0.7925,
+  "speedup": 1.174,
+  "retries": 0,
+  "failed_chunks": [],
+  "per_worker": {
+    "local1": {
+      "chunks": 16,
+      "busy_seconds": 0.4151
+    },
+    "local2": {
+      "chunks": 16,
+      "busy_seconds": 0.4192
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0306
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0317
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0214
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0215
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0224
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0221
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0214
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0211
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.022
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0223
+    },
+    {
+      "chunk_id": 10,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0321
+    },
+    {
+      "chunk_id": 11,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0322
+    },
+    {
+      "chunk_id": 12,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.026
+    },
+    {
+      "chunk_id": 13,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0262
+    },
+    {
+      "chunk_id": 14,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0265
+    },
+    {
+      "chunk_id": 15,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0246
+    },
+    {
+      "chunk_id": 16,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0278
+    },
+    {
+      "chunk_id": 17,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0302
+    },
+    {
+      "chunk_id": 18,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0281
+    },
+    {
+      "chunk_id": 19,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0332
+    },
+    {
+      "chunk_id": 20,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0331
+    },
+    {
+      "chunk_id": 21,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0222
+    },
+    {
+      "chunk_id": 22,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.023
+    },
+    {
+      "chunk_id": 23,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0379
+    },
+    {
+      "chunk_id": 24,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0378
+    },
+    {
+      "chunk_id": 25,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0234
+    },
+    {
+      "chunk_id": 26,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0214
+    },
+    {
+      "chunk_id": 27,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0225
+    },
+    {
+      "chunk_id": 28,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0214
+    },
+    {
+      "chunk_id": 29,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0231
+    },
+    {
+      "chunk_id": 30,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0226
+    },
+    {
+      "chunk_id": 31,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0225
+    }
+  ],
+  "result": {
+    "n_valid": 388610,
+    "n_discarded": 111390,
+    "total_amount": 97220627.72,
+    "avg_amount": 250.1753,
+    "min_amount": 0.0,
+    "max_amount": 500.0,
+    "consolidated_sample": [
+      {
+        "id": 0,
+        "name": "CLIENTE0",
+        "amount": 344.5
+      },
+      {
+        "id": 1,
+        "name": "CLIENTE1",
+        "amount": 71.76
+      },
+      {
+        "id": 2,
+        "name": "CLIENTE2",
+        "amount": 491.64
+      },
+      {
+        "id": 15625,
+        "name": "CLIENTE15625",
+        "amount": 257.34
+      },
+      {
+        "id": 15626,
+        "name": "CLIENTE15626",
+        "amount": 115.8
+      },
+      {
+        "id": 15627,
+        "name": "CLIENTE15627",
+        "amount": 320.54
+      },
+      {
+        "id": 31250,
+        "name": "CLIENTE31250",
+        "amount": 339.98
+      },
+      {
+        "id": 31251,
+        "name": "CLIENTE31251",
+        "amount": 447.5
+      },
+      {
+        "id": 31252,
+        "name": "CLIENTE31252",
+        "amount": 369.38
+      },
+      {
+        "id": 46875,
+        "name": "CLIENTE46875",
+        "amount": 490.81
+      }
+    ],
+    "rows_in_sample": 10
+  },
+  "timestamp": "2026-06-16T11:35:54"
+}

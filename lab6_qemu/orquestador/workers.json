@@ -1,0 +1,8 @@
+{
+  "ssh_user": "root",
+  "remote_dir": "/root/orchestrator",
+  "workers": [
+    {"name": "nodo1", "task_host": "10.0.2.2", "task_port": 9001, "ssh_host": "10.0.2.2", "ssh_port": 2221},
+    {"name": "nodo2", "task_host": "10.0.2.2", "task_port": 9002, "ssh_host": "10.0.2.2", "ssh_port": 2222}
+  ]
+}

@@ -1,0 +1,14 @@
+[13:44:02] job=e1-test task=task_primes chunks=8 workers=['local1', 'local2']
+[13:44:02] [local1] EN LINEA y funcional: self_test funcional OK
+[13:44:02] [local2] EN LINEA y funcional: self_test funcional OK
+[13:44:02] Listo para trabajar con 2 worker(s): ['local1', 'local2']
+[13:44:02] [local2] chunk 1 OK (0.0047s)
+[13:44:02] [local1] chunk 0 OK (0.004s)
+[13:44:02] [local1] chunk 3 OK (0.0049s)
+[13:44:02] [local1] chunk 4 OK (0.0053s)
+[13:44:02] [local1] chunk 5 OK (0.0072s)
+[13:44:02] [local2] chunk 2 OK (0.0056s)
+[13:44:02] [local1] chunk 6 OK (0.0058s)
+[13:44:02] [local2] chunk 7 OK (0.0059s)
+[13:44:02] FIN: 8/8 chunks OK, 0 reintentos, 0 abandonados, 0.259s
+[13:44:02] resultado: {"total_primes": 5133}

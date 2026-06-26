@@ -1,0 +1,40 @@
+[11:35:54] job=local-etl task=task_etl chunks=32 workers=['local1', 'local2']
+[11:35:54] [local1] EN LINEA y funcional: self_test funcional OK
+[11:35:54] [local2] EN LINEA y funcional: self_test funcional OK
+[11:35:54] Listo para trabajar con 2 worker(s): ['local1', 'local2']
+[11:35:54] [local1] chunk 0 OK (0.0306s)
+[11:35:54] [local2] chunk 1 OK (0.0317s)
+[11:35:54] [local1] chunk 2 OK (0.0214s)
+[11:35:54] [local2] chunk 3 OK (0.0215s)
+[11:35:54] [local2] chunk 5 OK (0.0221s)
+[11:35:54] [local1] chunk 4 OK (0.0224s)
+[11:35:54] [local1] chunk 7 OK (0.0211s)
+[11:35:54] [local2] chunk 6 OK (0.0214s)
+[11:35:54] [local1] chunk 8 OK (0.022s)
+[11:35:54] [local2] chunk 9 OK (0.0223s)
+[11:35:54] [local2] chunk 11 OK (0.0322s)
+[11:35:54] [local1] chunk 10 OK (0.0321s)
+[11:35:54] [local2] chunk 12 OK (0.026s)
+[11:35:54] [local2] chunk 14 OK (0.0265s)
+[11:35:54] [local1] chunk 13 OK (0.0262s)
+[11:35:54] [local2] chunk 15 OK (0.0246s)
+[11:35:54] [local1] chunk 16 OK (0.0278s)
+[11:35:54] [local2] chunk 17 OK (0.0302s)
+[11:35:54] [local1] chunk 18 OK (0.0281s)
+[11:35:54] [local2] chunk 19 OK (0.0332s)
+[11:35:54] [local1] chunk 20 OK (0.0331s)
+[11:35:54] [local2] chunk 21 OK (0.0222s)
+[11:35:54] [local1] chunk 22 OK (0.023s)
+[11:35:54] [local2] chunk 23 OK (0.0379s)
+[11:35:54] [local1] chunk 24 OK (0.0378s)
+[11:35:54] [local1] chunk 26 OK (0.0214s)
+[11:35:54] [local2] chunk 25 OK (0.0234s)
+[11:35:54] [local1] chunk 27 OK (0.0225s)
+[11:35:54] [local2] chunk 28 OK (0.0214s)
+[11:35:54] [local1] chunk 29 OK (0.0231s)
+[11:35:54] [local2] chunk 30 OK (0.0226s)
+[11:35:54] [local1] chunk 31 OK (0.0225s)
+[11:35:54] FIN: 32/32 chunks OK, 0 reintentos, 0 abandonados, 0.675s
+[11:35:54] speedup = 1.174 (baseline 0.7925s / distribuido 0.675s)
+[11:35:54] resultado: {"n_valid": 388610, "n_discarded": 111390, "total_amount": 97220627.72, "avg_amount": 250.1753, "min_amount": 0.0, "max_amount": 500.0, "consolidated_sample": [{"id": 0, "name": "CLIENTE0", "amount": 344.5}, {"id": 1, "name": "CLIENTE1", "amount": 71.76}, {"id": 2, "name": "CLIENTE2", "amount": 491.64}, {"id": 15625, "name": "CLIENTE15625", "amount": 257.34}, {"id": 15626, "name": "CLIENTE15626", "amount": 115.8}, {"id": 15627, "name": "CLIENTE15627", "amount": 320.54}, {"id": 31250, "name": "CLIENTE31250", "amount": 339.98}, {"id": 31251, "name": "CLIENTE31251", "amount": 447.5}, {"id": 31252, "name": "CLIENTE31252", "amount": 369.38}, {"id": 46875, "name": "CLIENTE46875", "amount": 490.81}], "rows_in_sample": 10}
+[11:35:54] evidencia guardada en C:\Users\welin\Desktop\universidad\Paralela\Paralelismo_con_qemu\orquestador\results\local-etl.json

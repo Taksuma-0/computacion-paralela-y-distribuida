@@ -1,0 +1,329 @@
+{
+  "job_id": "job-20260617-204326",
+  "task": "task_primes.py",
+  "task_name": "task_primes",
+  "payload": {
+    "upper": 300000,
+    "n_chunks": 40
+  },
+  "coordinator_location": "host",
+  "workers": [
+    {
+      "name": "nodo1",
+      "task_host": "127.0.0.1",
+      "task_port": 9001
+    },
+    {
+      "name": "nodo2",
+      "task_host": "127.0.0.1",
+      "task_port": 9002
+    }
+  ],
+  "healthy_workers": [
+    "nodo1",
+    "nodo2"
+  ],
+  "n_chunks": 40,
+  "completed": 40,
+  "elapsed": 0.9006,
+  "elapsed_baseline": 0.554,
+  "speedup": 0.615,
+  "retries": 0,
+  "failed_chunks": [],
+  "per_worker": {
+    "nodo1": {
+      "chunks": 21,
+      "busy_seconds": 0.3029
+    },
+    "nodo2": {
+      "chunks": 19,
+      "busy_seconds": 0.2666
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0092
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0059
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0139
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0075
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0056
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0059
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0077
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0078
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0082
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0076
+    },
+    {
+      "chunk_id": 10,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0093
+    },
+    {
+      "chunk_id": 11,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0103
+    },
+    {
+      "chunk_id": 12,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0115
+    },
+    {
+      "chunk_id": 13,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0123
+    },
+    {
+      "chunk_id": 14,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.011
+    },
+    {
+      "chunk_id": 15,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0114
+    },
+    {
+      "chunk_id": 16,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0114
+    },
+    {
+      "chunk_id": 17,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0107
+    },
+    {
+      "chunk_id": 18,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0122
+    },
+    {
+      "chunk_id": 19,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0112
+    },
+    {
+      "chunk_id": 20,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0238
+    },
+    {
+      "chunk_id": 21,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0228
+    },
+    {
+      "chunk_id": 22,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.013
+    },
+    {
+      "chunk_id": 23,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.022
+    },
+    {
+      "chunk_id": 24,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0225
+    },
+    {
+      "chunk_id": 25,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0135
+    },
+    {
+      "chunk_id": 26,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0111
+    },
+    {
+      "chunk_id": 27,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0194
+    },
+    {
+      "chunk_id": 28,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.02
+    },
+    {
+      "chunk_id": 29,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0142
+    },
+    {
+      "chunk_id": 30,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0168
+    },
+    {
+      "chunk_id": 31,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0269
+    },
+    {
+      "chunk_id": 32,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.027
+    },
+    {
+      "chunk_id": 33,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0161
+    },
+    {
+      "chunk_id": 34,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0153
+    },
+    {
+      "chunk_id": 35,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0202
+    },
+    {
+      "chunk_id": 36,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0216
+    },
+    {
+      "chunk_id": 37,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo2",
+      "seconds": 0.0169
+    },
+    {
+      "chunk_id": 38,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0179
+    },
+    {
+      "chunk_id": 39,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "nodo1",
+      "seconds": 0.0179
+    }
+  ],
+  "result": {
+    "total_primes": 25997
+  },
+  "timestamp": "2026-06-17T20:43:27"
+}

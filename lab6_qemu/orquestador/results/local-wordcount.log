@@ -1,0 +1,40 @@
+[11:35:52] job=local-wordcount task=task_wordcount chunks=32 workers=['local1', 'local2']
+[11:35:52] [local1] EN LINEA y funcional: self_test funcional OK
+[11:35:52] [local2] EN LINEA y funcional: self_test funcional OK
+[11:35:52] Listo para trabajar con 2 worker(s): ['local1', 'local2']
+[11:35:52] [local2] chunk 1 OK (0.0133s)
+[11:35:52] [local1] chunk 0 OK (0.0138s)
+[11:35:52] [local2] chunk 2 OK (0.0221s)
+[11:35:52] [local1] chunk 3 OK (0.0241s)
+[11:35:52] [local2] chunk 4 OK (0.0137s)
+[11:35:52] [local1] chunk 5 OK (0.0133s)
+[11:35:52] [local2] chunk 6 OK (0.0126s)
+[11:35:52] [local2] chunk 8 OK (0.0131s)
+[11:35:52] [local1] chunk 7 OK (0.0143s)
+[11:35:52] [local2] chunk 9 OK (0.0123s)
+[11:35:52] [local1] chunk 10 OK (0.0127s)
+[11:35:52] [local1] chunk 12 OK (0.0127s)
+[11:35:52] [local2] chunk 11 OK (0.0125s)
+[11:35:52] [local1] chunk 13 OK (0.0136s)
+[11:35:52] [local2] chunk 14 OK (0.0137s)
+[11:35:52] [local1] chunk 15 OK (0.0141s)
+[11:35:52] [local2] chunk 16 OK (0.0137s)
+[11:35:52] [local1] chunk 17 OK (0.0155s)
+[11:35:52] [local2] chunk 18 OK (0.0149s)
+[11:35:52] [local1] chunk 19 OK (0.0147s)
+[11:35:52] [local1] chunk 21 OK (0.0141s)
+[11:35:52] [local2] chunk 20 OK (0.0148s)
+[11:35:52] [local2] chunk 23 OK (0.0129s)
+[11:35:52] [local1] chunk 22 OK (0.0145s)
+[11:35:52] [local2] chunk 24 OK (0.0147s)
+[11:35:52] [local1] chunk 25 OK (0.0179s)
+[11:35:52] [local2] chunk 26 OK (0.0154s)
+[11:35:52] [local1] chunk 27 OK (0.0153s)
+[11:35:52] [local2] chunk 28 OK (0.014s)
+[11:35:52] [local1] chunk 29 OK (0.0135s)
+[11:35:52] [local1] chunk 31 OK (0.0132s)
+[11:35:52] [local2] chunk 30 OK (0.0149s)
+[11:35:53] FIN: 32/32 chunks OK, 0 reintentos, 0 abandonados, 0.499s
+[11:35:53] speedup = 0.897 (baseline 0.4482s / distribuido 0.499s)
+[11:35:53] resultado: {"docs": 20000, "distinct": 24, "total_tokens": 798836, "top10": [["overhead", 33597], ["cluster", 33580], ["merge", 33545], ["nodo", 33502], ["ancho", 33475], ["proceso", 33449], ["json", 33417], ["red", 33372], ["token", 33306], ["tarea", 33293]]}
+[11:35:53] evidencia guardada en C:\Users\welin\Desktop\universidad\Paralela\Paralelismo_con_qemu\orquestador\results\local-wordcount.json

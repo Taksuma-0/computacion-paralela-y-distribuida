@@ -1,0 +1,9 @@
+{
+  "ssh_user": "root",
+  "remote_dir": "/root/orchestrator",
+  "_comment": "Topologia para el TUI: el coordinador corre en el HOST y alcanza nodo1/nodo2 por los puertos reenviados de QEMU (127.0.0.1). Distinta de workers.json (coordinador dentro de nodo0 -> 10.0.2.2).",
+  "workers": [
+    {"name": "nodo1", "task_host": "127.0.0.1", "task_port": 9001, "ssh_host": "127.0.0.1", "ssh_port": 2221},
+    {"name": "nodo2", "task_host": "127.0.0.1", "task_port": 9002, "ssh_host": "127.0.0.1", "ssh_port": 2222}
+  ]
+}

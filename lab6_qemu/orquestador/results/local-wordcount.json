@@ -1,0 +1,318 @@
+{
+  "job_id": "local-wordcount",
+  "task": "task_wordcount.py",
+  "task_name": "task_wordcount",
+  "payload": {
+    "seed": 2026,
+    "num_docs": 20000,
+    "n_chunks": 32
+  },
+  "coordinator_location": "host-2agentes",
+  "workers": [
+    {
+      "name": "local1",
+      "task_host": "127.0.0.1",
+      "task_port": 9001
+    },
+    {
+      "name": "local2",
+      "task_host": "127.0.0.1",
+      "task_port": 9002
+    }
+  ],
+  "healthy_workers": [
+    "local1",
+    "local2"
+  ],
+  "n_chunks": 32,
+  "completed": 32,
+  "elapsed": 0.4995,
+  "elapsed_baseline": 0.4482,
+  "speedup": 0.897,
+  "retries": 0,
+  "failed_chunks": [],
+  "per_worker": {
+    "local1": {
+      "chunks": 16,
+      "busy_seconds": 0.2373
+    },
+    "local2": {
+      "chunks": 16,
+      "busy_seconds": 0.2286
+    }
+  },
+  "per_chunk": [
+    {
+      "chunk_id": 0,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0138
+    },
+    {
+      "chunk_id": 1,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0133
+    },
+    {
+      "chunk_id": 2,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0221
+    },
+    {
+      "chunk_id": 3,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0241
+    },
+    {
+      "chunk_id": 4,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0137
+    },
+    {
+      "chunk_id": 5,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0133
+    },
+    {
+      "chunk_id": 6,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0126
+    },
+    {
+      "chunk_id": 7,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0143
+    },
+    {
+      "chunk_id": 8,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0131
+    },
+    {
+      "chunk_id": 9,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0123
+    },
+    {
+      "chunk_id": 10,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0127
+    },
+    {
+      "chunk_id": 11,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0125
+    },
+    {
+      "chunk_id": 12,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0127
+    },
+    {
+      "chunk_id": 13,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0136
+    },
+    {
+      "chunk_id": 14,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0137
+    },
+    {
+      "chunk_id": 15,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0141
+    },
+    {
+      "chunk_id": 16,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0137
+    },
+    {
+      "chunk_id": 17,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0155
+    },
+    {
+      "chunk_id": 18,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0149
+    },
+    {
+      "chunk_id": 19,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0147
+    },
+    {
+      "chunk_id": 20,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0148
+    },
+    {
+      "chunk_id": 21,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0141
+    },
+    {
+      "chunk_id": 22,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0145
+    },
+    {
+      "chunk_id": 23,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0129
+    },
+    {
+      "chunk_id": 24,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0147
+    },
+    {
+      "chunk_id": 25,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0179
+    },
+    {
+      "chunk_id": 26,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0154
+    },
+    {
+      "chunk_id": 27,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0153
+    },
+    {
+      "chunk_id": 28,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.014
+    },
+    {
+      "chunk_id": 29,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0135
+    },
+    {
+      "chunk_id": 30,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local2",
+      "seconds": 0.0149
+    },
+    {
+      "chunk_id": 31,
+      "state": "completado",
+      "attempts": 1,
+      "worker": "local1",
+      "seconds": 0.0132
+    }
+  ],
+  "result": {
+    "docs": 20000,
+    "distinct": 24,
+    "total_tokens": 798836,
+    "top10": [
+      [
+        "overhead",
+        33597
+      ],
+      [
+        "cluster",
+        33580
+      ],
+      [
+        "merge",
+        33545
+      ],
+      [
+        "nodo",
+        33502
+      ],
+      [
+        "ancho",
+        33475
+      ],
+      [
+        "proceso",
+        33449
+      ],
+      [
+        "json",
+        33417
+      ],
+      [
+        "red",
+        33372
+      ],
+      [
+        "token",
+        33306
+      ],
+      [
+        "tarea",
+        33293
+      ]
+    ]
+  },
+  "timestamp": "2026-06-16T11:35:53"
+}
