@@ -428,13 +428,56 @@ evaluará **Dask/Ray** frente a este orquestador propio para esa etapa.
 
 ---
 
+## 15. Versión con DATOS REALES (`task_adsb_real`)
+
+Además de la versión sintética, el sistema incluye una variante que corre sobre **vuelos
+reales de ADS-B** descargados de **OpenSky Network** (la fuente que cita el documento del
+proyecto).
+
+- **Ingesta** (`ingesta_adsb.py`, una vez, en el host): *polling* anónimo del endpoint
+  `/states/all` de OpenSky sobre un *bounding box* (por defecto Europa central, mucho
+  tráfico), agrupa los estados por `icao24` en trayectorias, limpia y **resamplea** cada
+  vuelo a 40 puntos → `data/trayectorias_reales.json`. En una corrida se capturaron
+  **636 vuelos reales**. (La librería `traffic` queda como fuente alternativa offline.)
+- **Tarea** (`tasks/task_adsb_real.py`, stdlib): reutiliza las mismas *features* y el
+  scoring z-robusto/MAD; `split()` carga los vuelos reales, **inyecta ~12 anomalías
+  controladas sobre vuelos rectos** (evaluación *híbrida*) y reparte; `run()`/`merge()`
+  producen el mismo `result` → **el HTML radar no cambia**.
+- **Calibración para datos reales:** los vuelos reales son casi rectos → la MAD tiende a 0;
+  se añade un **piso de escala por feature** (`FLOORS`) para no disparar el z-score de
+  cualquier vuelo que solo curve un poco.
+
+**Cómo leer las métricas con datos reales (honesto):**
+- **RECALL** (sobre las inyectadas) = validación medible → **100 %** en la corrida.
+- **HALLAZGOS** = vuelos reales genuinamente anómalos que aparecen en el top-k (holdings,
+  aproximaciones). Es el valor de usar datos reales: en 636 vuelos de Europa el detector
+  halló ~8 en el top-12.
+- **precision@k / FPR**: con datos reales los "no inyectados" del top **no son errores**
+  sino hallazgos; por eso `precision@k` sale baja aunque el detector funcione. Se reporta
+  con esa salvedad (el HTML rotula "HALLAZGOS" en vez de "falsos positivos").
+- **SPEEDUP < 1**: con solo 636 vuelos el cómputo es minúsculo → domina la red (esperado y
+  honesto). El speedup se demuestra con la versión **sintética** (60.000 trayectorias, ~1.7×).
+
+**Ejecutar:**
+```powershell
+python ingesta_adsb.py --source opensky --bbox 47,5,55,15 --snapshots 24 --interval 10
+# en la TUI: elegir "ADS-B REAL (datos OpenSky)"; o por CLI:
+python coordinator_generic.py --task tasks/task_adsb_real.py --local ^
+  --payload '{"data":"data/trayectorias_reales.json","n_chunks":8,"top_k":12,"inject":12,"seed":7}'
+```
+
+---
+
 ### Mapa de archivos (referencia rápida)
 ```
 demo_adsb/
-├─ tasks/task_adsb.py   # dominio: generación + features + scoring (split/run/merge/self_test)
-├─ adsb_report.py       # genera el HTML (radar)
+├─ ingesta_adsb.py      # descarga datos REALES (OpenSky) -> data/trayectorias_reales.json
+├─ tasks/task_adsb.py       # version sintetica (genera + features + scoring)
+├─ tasks/task_adsb_real.py  # version REAL (lee vuelos reales + inyeccion hibrida)
+├─ adsb_report.py       # genera el HTML (radar) — comun a ambas
 ├─ coordinator_generic.py / worker_agent.py / baseline_seq.py  # motor (agnóstico)
-├─ tui/                 # interfaz (banner avión, dashboard en vivo)
+├─ tui/                 # interfaz (banner avión, dashboard; menú: sintética | REAL)
+├─ data/trayectorias_reales.json   # vuelos reales ingeridos
 └─ results/<job>.json   # evidencia (+ .html del reporte)
 ```
 *Documento complementario:* `GUIA_ADSB.md` (comandos paso a paso para ejecutarlo).

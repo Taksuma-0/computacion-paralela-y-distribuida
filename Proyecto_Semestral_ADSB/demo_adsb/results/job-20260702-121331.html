@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ADS-B ANOMALY SCOPE</title>
+<style>
+:root{
+  --void:#04100a; --panel:#06170e; --panel2:#08200f; --grid:#114026; --grid2:#0c2c1b;
+  --phos:#39ff7a; --phos-dim:#1f8f4d; --ink:#bfe9cf; --ink-dim:#5f8a72; --paper:#e9fbef;
+  --rodeo:#3fd0ff; --holding:#ffb000; --descenso_anomalo:#ff5247; --go_around:#c77dff;
+  --warn:#ffb000; --bad:#ff5247;
+  --mono:ui-monospace,"Cascadia Code","SFMono-Regular","Consolas","Liberation Mono",monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 30% -10%, #0a2417 0%, var(--void) 60%),
+    var(--void);
+  color:var(--ink); font-family:var(--mono); font-size:14px; line-height:1.45;
+  padding:18px; letter-spacing:.02em;
+  -webkit-font-smoothing:antialiased;
+}
+.scanlines{position:fixed;inset:0;pointer-events:none;z-index:50;opacity:.35;
+  background:repeating-linear-gradient(0deg,rgba(0,0,0,0) 0 2px,rgba(0,0,0,.18) 2px 3px)}
+.wrap{max-width:1180px;margin:0 auto;position:relative;z-index:1}
+
+/* ---- status bar ---- */
+.status{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:10px;padding:12px 16px;margin-bottom:14px}
+.status .top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+.brand{font-size:20px;font-weight:700;letter-spacing:.18em;color:var(--paper);
+  text-shadow:0 0 12px rgba(57,255,122,.45)}
+.brand .dot{color:var(--phos);animation:blink 1.4s steps(1) infinite}
+.tag{color:var(--ink-dim);font-size:11px;letter-spacing:.16em}
+.readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px}
+.cell{border:1px solid var(--grid2);border-radius:6px;padding:5px 10px;font-size:11px;
+  letter-spacing:.1em;color:var(--ink-dim);background:rgba(8,32,18,.5)}
+.cell b{color:var(--paper);font-weight:700;letter-spacing:.04em}
+.cell.alert b{color:var(--phos)}
+
+/* ---- main grid ---- */
+.deck{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(280px,.85fr);gap:14px}
+@media(max-width:900px){.deck{grid-template-columns:1fr}}
+.frame{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:12px;padding:14px;position:relative;overflow:hidden}
+.frame > h2{margin:0 0 10px;font-size:12px;letter-spacing:.22em;color:var(--ink-dim);font-weight:700;
+  display:flex;justify-content:space-between;align-items:center}
+.frame > h2 .hint{color:var(--phos-dim);font-weight:400;letter-spacing:.08em}
+
+/* ---- scope ---- */
+.scope-stage{position:relative;width:100%;max-width:560px;margin:0 auto;aspect-ratio:1/1}
+.scope-stage svg{position:absolute;inset:0;width:100%;height:100%}
+.sweep{position:absolute;inset:0;border-radius:50%;pointer-events:none;mix-blend-mode:screen;
+  background:conic-gradient(from var(--a,0deg),
+    rgba(57,255,122,0) 0deg, rgba(57,255,122,0) 250deg,
+    rgba(57,255,122,.04) 320deg, rgba(57,255,122,.12) 356deg,
+    rgba(120,255,180,.5) 359.3deg, rgba(57,255,122,0) 360deg);
+  animation:sweep 4.6s linear infinite}
+ring{}
+.ring{fill:none;stroke:var(--grid2);stroke-width:1}
+.ring.r-out{stroke:var(--grid)}
+.cross{stroke:var(--grid2);stroke-width:1}
+.az{fill:var(--ink-dim);font-size:9px;letter-spacing:.1em}
+.rng{fill:var(--phos-dim);font-size:8px;opacity:.7}
+.track{fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;opacity:.92;
+  filter:drop-shadow(0 0 4px currentColor)}
+.track.dim{opacity:.18;filter:none}
+.halo{fill:none;stroke-width:1.5;opacity:.9}
+.plane{}
+.db{font-size:9px;letter-spacing:.04em;fill:var(--paper)}
+.db rect{}
+.center{fill:var(--phos)}
+
+/* ---- flight strips ---- */
+.strips{display:flex;flex-direction:column;gap:7px;max-height:560px;overflow:auto}
+.strip{display:grid;grid-template-columns:22px 1fr auto;gap:9px;align-items:center;
+  border:1px solid var(--grid2);border-left-width:4px;border-radius:6px;padding:7px 9px;
+  background:rgba(6,23,14,.7);cursor:pointer;transition:transform .1s,background .15s,border-color .15s}
+.strip:hover,.strip.sel{background:rgba(14,52,32,.7);transform:translateX(-2px)}
+.strip .rank{color:var(--ink-dim);font-size:11px;text-align:right}
+.strip .cs{color:var(--paper);font-weight:700;letter-spacing:.06em}
+.strip .meta{color:var(--ink-dim);font-size:10px;letter-spacing:.08em;margin-top:1px}
+.strip .sc{text-align:right}
+.strip .sc b{color:var(--paper);font-size:15px}
+.strip .sc .z{color:var(--ink-dim);font-size:9px;letter-spacing:.1em}
+.kind{display:inline-block;font-size:9px;letter-spacing:.12em;padding:1px 6px;border-radius:4px;
+  border:1px solid currentColor}
+.bar{height:3px;border-radius:2px;background:var(--grid2);margin-top:6px;overflow:hidden}
+.bar > i{display:block;height:100%;width:0;border-radius:2px;background:currentColor;
+  transition:width 1.1s cubic-bezier(.2,.7,.2,1)}
+
+/* ---- metrics ---- */
+.gauges{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-top:14px}
+@media(max-width:760px){.gauges{grid-template-columns:repeat(2,1fr)}}
+.gauge{border:1px solid var(--grid);background:linear-gradient(180deg,var(--panel2),var(--panel));
+  border-radius:10px;padding:14px}
+.gauge .lab{font-size:10px;letter-spacing:.16em;color:var(--ink-dim)}
+.gauge .val{font-size:30px;font-weight:700;color:var(--paper);margin-top:6px;line-height:1;
+  text-shadow:0 0 14px rgba(57,255,122,.35)}
+.gauge .val .u{font-size:14px;color:var(--phos-dim);margin-left:2px}
+.gauge .sub{font-size:10px;color:var(--ink-dim);margin-top:5px;letter-spacing:.06em}
+.gauge.good .val{color:var(--phos)}
+.gauge.warn .val{color:var(--warn)}
+
+/* ---- patterns + dist ---- */
+.lower{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(260px,1fr);gap:14px;margin-top:14px}
+@media(max-width:900px){.lower{grid-template-columns:1fr}}
+.pats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media(max-width:620px){.pats{grid-template-columns:repeat(2,1fr)}}
+.pat{border:1px solid var(--grid2);border-radius:8px;padding:8px;background:rgba(6,23,14,.6);text-align:center}
+.pat svg{width:100%;height:96px;display:block}
+.pat .pk{font-size:10px;letter-spacing:.12em;font-weight:700;margin-top:4px}
+.pat .pm{font-size:9px;color:var(--ink-dim);letter-spacing:.06em}
+.dist .row{display:grid;grid-template-columns:74px 1fr 40px;gap:8px;align-items:center;margin-bottom:9px}
+.dist .wn{color:var(--paper);font-size:11px;letter-spacing:.06em}
+.dist .track2{height:14px;background:var(--grid2);border-radius:4px;overflow:hidden}
+.dist .track2 > i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--phos-dim),var(--phos));
+  transition:width 1s ease-out}
+.dist .cn{color:var(--ink-dim);font-size:11px;text-align:right}
+.spark{display:flex;align-items:flex-end;gap:1px;height:34px;margin-top:6px}
+.spark > i{flex:1;background:var(--phos-dim);border-radius:1px 1px 0 0;min-height:1px;opacity:.8}
+
+.foot{color:var(--ink-dim);font-size:10px;letter-spacing:.1em;text-align:center;margin-top:18px;
+  border-top:1px solid var(--grid2);padding-top:12px}
+.foot b{color:var(--phos-dim)}
+
+@keyframes sweep{to{--a:360deg}}
+@property --a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@keyframes blink{50%{opacity:.25}}
+@keyframes pulse{0%,100%{r:3;opacity:1}50%{r:11;opacity:.15}}
+@media(prefers-reduced-motion:reduce){
+  .sweep{animation:none;opacity:.18}
+  .brand .dot{animation:none}
+  .track{stroke-dasharray:none!important;stroke-dashoffset:0!important}
+}
+</style>
+</head>
+<body>
+<div class="scanlines"></div>
+<div class="wrap">
+
+  <header class="status">
+    <div class="top">
+      <span class="brand">ADS-B ANOMALY SCOPE<span class="dot">_</span></span>
+      <span class="tag" id="tag-sector"></span>
+    </div>
+    <div class="readout" id="readout"></div>
+  </header>
+
+  <div class="deck">
+    <section class="frame">
+      <h2>RADAR · TOP CONTACTOS ANÓMALOS <span class="hint" id="scope-hint">barrido activo</span></h2>
+      <div class="scope-stage">
+        <svg id="scope" viewBox="0 0 600 600" aria-label="scope de radar"></svg>
+        <div class="sweep" aria-hidden="true"></div>
+      </div>
+    </section>
+
+    <aside class="frame">
+      <h2>FLIGHT STRIPS · RANKING <span class="hint">hover = fijar contacto</span></h2>
+      <div class="strips" id="strips"></div>
+    </aside>
+  </div>
+
+  <div class="gauges" id="gauges"></div>
+
+  <div class="lower">
+    <section class="frame">
+      <h2>PATRONES DE MANIOBRA DETECTADOS <span class="hint">un ejemplo por tipo</span></h2>
+      <div class="pats" id="pats"></div>
+    </section>
+    <section class="frame dist">
+      <h2>CÓMPUTO DISTRIBUIDO <span class="hint">reparto de chunks</span></h2>
+      <div id="dist"></div>
+      <div style="font-size:10px;letter-spacing:.12em;color:var(--ink-dim);margin-top:10px">
+        TIEMPO POR CHUNK</div>
+      <div class="spark" id="spark"></div>
+    </section>
+  </div>
+
+  <p class="foot">Generado por <b>adsb_report.py</b> · tarea <b>task_adsb</b> sobre el orquestador
+     distribuido (QEMU) · scoring z-robusto (MAD) · evidencia <b id="foot-job"></b></p>
+</div>
+
+<script>
+const DATA = {"meta": {"job_id": "job-20260702-121331", "task_name": "task_adsb_real", "workers": [{"name": "local1", "task_host": "127.0.0.1", "task_port": 9101}, {"name": "local2", "task_host": "127.0.0.1", "task_port": 9102}], "healthy_workers": ["local1", "local2"], "n_chunks": 8, "completed": 8, "elapsed": 0.3589, "elapsed_baseline": 0.0737, "speedup": 0.205, "coordinator_location": "host", "payload": {"data": "data/trayectorias_reales.json", "n_chunks": 8, "top_k": 12, "inject": 12, "seed": 7, "z_threshold": 4.0}, "timestamp": "2026-07-02T12:13:31"}, "per_worker": {"local1": {"chunks": 3, "busy_seconds": 0.0298}, "local2": {"chunks": 5, "busy_seconds": 0.0451}}, "per_chunk": [{"chunk_id": 0, "worker": "local1", "seconds": 0.0109}, {"chunk_id": 1, "worker": "local2", "seconds": 0.0107}, {"chunk_id": 2, "worker": "local2", "seconds": 0.0088}, {"chunk_id": 3, "worker": "local1", "seconds": 0.0089}, {"chunk_id": 4, "worker": "local2", "seconds": 0.0083}, {"chunk_id": 5, "worker": "local2", "seconds": 0.009}, {"chunk_id": 6, "worker": "local1", "seconds": 0.01}, {"chunk_id": 7, "worker": "local2", "seconds": 0.0083}], "result": {"n_traj": 636, "n_injected": 12, "n_normal": 624, "detected_injected_in_topk": 4, "precision_at_k": 0.3333, "recall": 1.0, "false_positive_rate": 0.161859, "precision_threshold": 0.1062, "tp": 12, "fp": 101, "z_threshold": 4.0, "k": 12, "top_k": [{"id": 116, "route": "DKDWM", "score": 189.6953, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 29.474, "turn_sum": 2015.435, "vrate_max": 56.4}, "path": [[49.5794, 9.9339, 6950.0], [49.5795, 9.9343, 6950.0], [49.5793, 9.9336, 6943.6], [49.5781, 9.9291, 6915.4], [49.5769, 9.9247, 6887.2], [49.5759, 9.9204, 6859.0], [49.575, 9.9171, 6830.8], [49.5742, 9.9144, 6802.6], [49.5736, 9.9124, 6787.2], [49.5731, 9.9108, 6776.9], [49.5732, 9.9111, 6791.0], [49.5724, 9.9099, 6789.7], [49.5703, 9.9061, 6761.5], [49.5684, 9.9032, 6783.3], [49.5667, 9.901, 6839.7], [49.5648, 9.899, 6838.5], [49.6509, 10.0143, 6825.0], [49.6748, 9.8024, 6825.0], [49.4625, 9.7834, 6828.8], [49.4527, 9.9928, 6842.9], [49.663, 9.9914, 6835.9], [49.6537, 9.7793, 6807.7], [49.4416, 9.7946, 6800.0], [49.4655, 10.0024, 6800.0], [49.6728, 9.9664, 6800.0], [49.629, 9.7571, 6794.9], [49.4215, 9.8043, 6766.7], [49.479, 10.0055, 6750.0], [49.5473, 9.8758, 6750.0], [49.5459, 9.8736, 6723.1], [49.5438, 9.87, 6680.8], [49.5427, 9.8681, 6675.0], [49.5418, 9.8665, 6673.7], [49.5405, 9.8648, 6659.6], [49.539, 9.8625, 6641.0], [49.5369, 9.8589, 6612.8], [49.5354, 9.8561, 6600.0], [49.5343, 9.8538, 6600.0], [49.5326, 9.8514, 6589.1], [49.5309, 9.8489, 6575.0]]}, {"id": 303, "route": "SWR5MT", "score": 146.0973, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 22.9328, "turn_sum": 1260.327, "vrate_max": 380.8}, "path": [[48.4335, 9.0514, 32075.0], [48.4312, 9.0507, 32046.8], [48.4346, 9.0518, 32111.5], [48.4574, 9.0586, 32492.3], [48.4796, 9.0652, 32834.6], [48.5011, 9.0717, 33130.8], [48.5176, 9.0767, 33359.6], [48.5318, 9.0809, 33557.1], [48.5423, 9.0841, 33703.2], [48.5508, 9.0866, 33823.1], [48.5497, 9.0863, 33809.0], [48.5571, 9.0885, 33897.4], [48.5793, 9.0952, 34165.4], [48.5972, 9.1006, 34366.7], [48.6122, 9.1051, 34521.8], [48.6287, 9.1101, 34688.5], [48.6454, 9.1152, 34856.4], [48.6603, 9.1197, 34997.4], [48.6747, 9.124, 35142.3], [48.6875, 9.1279, 35297.4], [48.6979, 9.131, 35424.4], [48.7058, 9.1334, 35523.1], [48.7184, 9.1372, 35662.8], [48.7327, 9.1416, 35817.9], [48.7455, 9.1454, 35905.8], [48.76, 9.1497, 35977.6], [48.7823, 9.1565, 35991.7], [48.795, 9.1604, 36000.0], [48.7939, 9.16, 36000.0], [48.8079, 9.1643, 36000.0], [48.8304, 9.1712, 36000.0], [51.7642, 9.8318, 36000.0], [54.8503, 10.5267, 36000.0], [54.8623, 10.5309, 36000.0], [53.8014, 10.2937, 36000.0], [50.4415, 9.5394, 36000.0], [48.9215, 9.1988, 36000.0], [48.9348, 9.203, 36000.0], [48.9519, 9.2082, 36000.0], [48.9702, 9.2138, 36000.0]]}, {"id": 548, "route": "VJT645", "score": 135.836, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 21.3942, "turn_sum": 899.5, "vrate_max": 0.0}, "path": [[48.6753, 9.146, 36000.0], [48.6736, 9.1453, 36000.0], [48.672, 9.1446, 36000.0], [48.6834, 9.1492, 36000.0], [48.7004, 9.1561, 36000.0], [48.7167, 9.1627, 36000.0], [48.7323, 9.169, 36000.0], [48.7473, 9.1751, 36000.0], [48.7573, 9.1791, 36000.0], [48.7673, 9.1832, 36000.0], [48.7755, 9.1865, 36000.0], [48.7832, 9.1896, 36000.0], [48.7864, 9.1909, 36000.0], [48.7855, 9.1906, 36000.0], [48.7887, 9.1919, 36000.0], [48.805, 9.1985, 36000.0], [48.8214, 9.2052, 36000.0], [48.8329, 9.2098, 36000.0], [48.844, 9.2143, 36000.0], [48.8568, 9.2195, 36000.0], [48.8705, 9.2251, 36000.0], [48.8827, 9.2301, 36000.0], [48.8922, 9.2339, 36000.0], [49.0552, 9.2726, 36000.0], [51.6753, 9.8669, 36000.0], [54.2953, 10.4613, 36000.0], [52.9201, 10.1514, 36000.0], [50.3155, 9.5634, 36000.0], [48.9416, 9.2542, 36000.0], [48.9523, 9.2585, 36000.0], [48.9627, 9.2628, 36000.0], [48.972, 9.2666, 36000.0], [48.9813, 9.2704, 36000.0], [49.0408, 9.2948, 36000.0], [49.107, 9.322, 36000.0], [49.1403, 9.3357, 36000.0], [49.1504, 9.3399, 36000.0], [49.1615, 9.3445, 36000.0], [49.1746, 9.35, 36000.0], [49.1877, 9.3554, 36000.0]]}, {"id": 563, "route": "DMLHI", "score": 111.6243, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 17.7627, "turn_sum": 1895.517, "vrate_max": 56.4}, "path": [[49.7184, 10.524, 4825.0], [49.7183, 10.5245, 4810.9], [49.7183, 10.5243, 4809.6], [49.7184, 10.5217, 4851.9], [49.7183, 10.5186, 4868.6], [49.7179, 10.5147, 4854.5], [49.7172, 10.5123, 4869.2], [49.7164, 10.5106, 4897.4], [49.7156, 10.5094, 4938.5], [49.715, 10.5085, 4973.1], [49.7152, 10.5087, 4959.0], [49.7149, 10.5078, 4965.4], [49.7137, 10.5049, 5007.7], [49.7131, 10.5026, 5016.7], [49.7128, 10.5006, 5002.6], [49.7143, 10.502, 5023.1], [49.716, 10.5041, 5052.6], [49.7159, 10.5074, 5109.0], [49.7156, 10.5098, 5153.8], [49.7147, 10.5096, 5167.9], [49.7145, 10.5092, 5175.0], [49.7152, 10.5087, 5175.0], [49.7166, 10.5094, 5185.3], [49.7182, 10.5107, 5199.4], [49.7185, 10.5129, 5226.9], [49.7183, 10.515, 5255.1], [49.7162, 10.5169, 5283.3], [49.7149, 10.5181, 5300.0], [49.715, 10.5185, 5300.0], [49.7163, 10.5192, 5317.9], [49.7182, 10.5201, 5346.2], [49.7187, 10.522, 5374.4], [49.7189, 10.5239, 5403.8], [49.7178, 10.5238, 5446.2], [49.7176, 10.5244, 5488.5], [49.719, 10.5264, 5530.8], [49.719, 10.528, 5565.4], [49.7177, 10.5294, 5593.6], [49.718, 10.5291, 5643.6], [49.7188, 10.5284, 5700.0]]}, {"id": 71, "route": "MMD108", "score": 91.636, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 14.7636, "turn_sum": 1913.867, "vrate_max": 169.2}, "path": [[54.9784, 10.2304, 2325.0], [54.9786, 10.2323, 2339.1], [54.9782, 10.2295, 2340.4], [54.9756, 10.2111, 2298.1], [54.9731, 10.1932, 2255.8], [54.9706, 10.1759, 2213.5], [54.9687, 10.1626, 2180.8], [54.9671, 10.1511, 2152.6], [54.9661, 10.1433, 2137.2], [54.9652, 10.1369, 2125.0], [54.9653, 10.1379, 2125.0], [54.9645, 10.1318, 2114.7], [54.962, 10.1133, 2086.5], [54.9599, 10.0985, 2091.7], [54.9581, 10.0863, 2119.9], [54.9561, 10.0735, 2205.8], [55.083, 10.2322, 2301.9], [55.1185, 9.9137, 2344.2], [54.8082, 9.8781, 2367.3], [54.794, 10.1778, 2339.1], [55.1024, 10.1704, 2310.9], [55.089, 9.856, 2282.7], [54.779, 9.8723, 2223.7], [54.8147, 10.1698, 2153.2], [55.1191, 10.1124, 2042.3], [55.0556, 9.8003, 1919.2], [54.7527, 9.8608, 1750.0], [54.8376, 10.1505, 1650.0], [54.9375, 9.9614, 1650.0], [54.9363, 9.9543, 1596.2], [54.9344, 9.9426, 1511.5], [54.9335, 9.9366, 1451.3], [54.9328, 9.9314, 1394.9], [54.9322, 9.9253, 1338.5], [54.9315, 9.918, 1282.1], [54.9305, 9.908, 1225.6], [54.9297, 9.9003, 1192.3], [54.9292, 9.8947, 1178.2], [54.9289, 9.8864, 1131.4], [54.9287, 9.8774, 1075.0]]}, {"id": 40, "route": "OOOYS", "score": 85.8673, "reason": "vrate_max", "injected": false, "atype": null, "feats": {"len_ratio": 1.0165, "turn_sum": 902.613, "vrate_max": 12974.4}, "path": [[53.6695, 9.7422, 33025.0], [53.67, 9.7437, 20050.6], [53.6692, 9.7414, 10114.7], [53.6641, 9.7262, 10509.6], [53.6592, 9.7116, 10898.1], [53.6545, 9.6976, 11278.8], [53.6509, 9.6869, 11544.2], [53.6479, 9.6778, 11755.8], [53.6455, 9.6706, 11928.8], [53.6435, 9.6647, 12073.1], [53.6438, 9.6654, 12059.0], [53.642, 9.6603, 12167.9], [53.6368, 9.6447, 12492.3], [53.6327, 9.6323, 12741.7], [53.6292, 9.6221, 12939.1], [53.6251, 9.6099, 13159.6], [53.6209, 9.5973, 13384.0], [53.6174, 9.5868, 13581.4], [53.614, 9.5766, 13775.0], [53.6109, 9.5674, 13958.3], [53.6083, 9.5599, 14106.4], [53.6064, 9.5541, 14219.2], [53.6033, 9.5448, 14393.6], [53.5997, 9.5342, 14591.0], [53.5965, 9.5249, 14775.0], [53.593, 9.5144, 14984.0], [53.5874, 9.4979, 15308.3], [53.5842, 9.4884, 15494.2], [53.5845, 9.4893, 15480.1], [53.581, 9.479, 15672.4], [53.5754, 9.4624, 15982.7], [53.5725, 9.4536, 16146.8], [53.5699, 9.446, 16291.7], [53.5669, 9.4371, 16475.0], [53.563, 9.4259, 16698.7], [53.5575, 9.4094, 17009.0], [53.5532, 9.3965, 17257.7], [53.5498, 9.3866, 17455.1], [53.5456, 9.3743, 17696.2], [53.5412, 9.3612, 17950.0]]}, {"id": 184, "route": "JEI444", "score": 85.498, "reason": "len_ratio", "injected": true, "atype": "rodeo", "feats": {"len_ratio": 13.8434, "turn_sum": 187.879, "vrate_max": 144.2}, "path": [[48.1814, 11.4215, 3775.0], [48.2449, 11.4602, 3794.2], [48.3079, 11.4987, 3813.5], [48.368, 11.5332, 3825.0], [48.4238, 11.5616, 3825.0], [48.4779, 11.5892, 3825.0], [48.53, 11.6167, 3709.6], [48.5797, 11.643, 3565.4], [48.6271, 11.6683, 3436.5], [48.6731, 11.6939, 3369.2], [48.7157, 11.7176, 3301.9], [48.7553, 11.7395, 3223.1], [48.791, 11.7595, 3136.5], [48.8227, 11.777, 3050.0], [48.8523, 11.7949, 3059.6], [48.8774, 11.8102, 3069.2], [48.8959, 11.8201, 3032.7], [48.9068, 11.8231, 2926.9], [48.9127, 11.8232, 2821.2], [48.9151, 11.8224, 2761.5], [48.9127, 11.8191, 2713.5], [48.9054, 11.8128, 2663.5], [48.8926, 11.8031, 2605.8], [48.8748, 11.7905, 2548.1], [48.8524, 11.7753, 2490.4], [48.8254, 11.7575, 2432.7], [48.7939, 11.7371, 2375.0], [48.7581, 11.714, 2336.5], [48.7182, 11.6885, 2298.1], [48.6747, 11.6611, 2271.2], [48.628, 11.6321, 2261.5], [48.5781, 11.6012, 2251.9], [48.5242, 11.5674, 2196.2], [48.4675, 11.5316, 2128.8], [48.4083, 11.4945, 2065.4], [48.3473, 11.4564, 2017.3], [48.2848, 11.4175, 1969.2], [48.2213, 11.378, 1921.2], [48.1572, 11.3383, 1873.1], [48.0927, 11.2983, 1825.0]]}, {"id": 30, "route": "DETPS", "score": 79.7573, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 12.9818, "turn_sum": 937.294, "vrate_max": 161.5}, "path": [[49.9398, 9.068, 300.0], [49.9397, 9.068, 300.0], [49.9395, 9.0672, 315.4], [49.9387, 9.0616, 423.1], [49.9381, 9.0567, 515.4], [49.9377, 9.0536, 569.2], [49.9374, 9.0508, 623.1], [49.9371, 9.0486, 676.9], [49.937, 9.0478, 700.0], [49.937, 9.048, 700.0], [49.9387, 9.0462, 815.4], [49.9411, 9.0436, 976.9], [49.9433, 9.0425, 1046.2], [49.9456, 9.0416, 1100.0], [49.9483, 9.0403, 1207.7], [49.951, 9.0394, 1300.0], [49.9537, 9.0406, 1300.0], [49.9558, 9.0426, 1300.0], [49.9567, 9.0468, 1300.0], [49.9573, 9.0503, 1300.0], [49.9576, 9.053, 1300.0], [49.9579, 9.0567, 1300.0], [49.9584, 9.0613, 1300.0], [49.9588, 9.0659, 1300.0], [49.9593, 9.0705, 1300.0], [49.9593, 9.0772, 1253.8], [49.9591, 9.0841, 1200.0], [49.9592, 9.0839, 1200.0], [49.9588, 9.0841, 1192.3], [49.9551, 9.0873, 1138.5], [49.952, 9.0898, 1100.0], [49.9503, 9.0907, 1100.0], [49.9485, 9.0918, 1100.0], [49.9467, 9.0928, 1100.0], [49.9448, 9.0918, 1038.5], [49.9428, 9.0891, 930.8], [49.9419, 9.0866, 861.5], [49.9416, 9.0843, 807.7], [49.9412, 9.0814, 707.7], [49.9408, 9.0783, 600.0]]}, {"id": 271, "route": "N6498V", "score": 76.8007, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 12.5385, "turn_sum": 1181.582, "vrate_max": 169.3}, "path": [[52.8095, 8.2815, 8075.0], [52.8098, 8.2825, 8089.1], [52.81, 8.2808, 8096.8], [52.8101, 8.2697, 8082.7], [52.8133, 8.2619, 7998.1], [52.8204, 8.2583, 7828.8], [52.8262, 8.2575, 7861.5], [52.8313, 8.258, 7988.5], [52.8351, 8.2588, 8025.6], [52.8382, 8.2594, 8050.0], [52.8379, 8.2593, 8050.0], [52.8405, 8.2599, 8050.0], [52.8486, 8.2618, 8050.0], [52.8551, 8.2648, 8016.7], [52.8606, 8.2686, 7960.3], [52.8647, 8.2777, 7961.5], [52.8684, 8.288, 7975.6], [52.868, 8.299, 7989.7], [52.867, 8.309, 8003.8], [52.8643, 8.3163, 8017.9], [52.8615, 8.3216, 8010.9], [52.8588, 8.3249, 7982.7], [52.8539, 8.3263, 7903.2], [52.8482, 8.327, 7804.5], [52.8436, 8.3254, 7840.4], [52.8388, 8.3227, 7885.3], [52.8328, 8.3157, 7941.7], [52.8294, 8.3117, 7969.2], [52.8297, 8.3121, 7955.1], [52.8268, 8.3077, 8003.8], [52.8221, 8.3007, 8088.5], [52.8199, 8.2971, 8100.0], [52.8181, 8.294, 8096.2], [52.8163, 8.2905, 8053.8], [52.814, 8.286, 7993.6], [52.8107, 8.2793, 7894.9], [52.8083, 8.2741, 7834.6], [52.8067, 8.2703, 7806.4], [52.8045, 8.266, 7778.2], [52.8022, 8.2616, 7750.0]]}, {"id": 104, "route": "DKEIX", "score": 74.8773, "reason": "len_ratio", "injected": false, "atype": null, "feats": {"len_ratio": 12.2498, "turn_sum": 1419.316, "vrate_max": 56.5}, "path": [[48.4301, 9.8092, 3400.0], [48.4301, 9.8099, 3400.0], [48.4301, 9.8089, 3387.2], [48.43, 9.8024, 3330.8], [48.4299, 9.7964, 3312.8], [48.4296, 9.7908, 3341.0], [48.4292, 9.7862, 3350.0], [48.4287, 9.7822, 3350.0], [48.4283, 9.7797, 3375.6], [48.428, 9.7778, 3400.0], [48.4281, 9.7781, 3400.0], [48.4276, 9.7766, 3389.7], [48.4264, 9.772, 3361.5], [48.4253, 9.7684, 3350.0], [48.4243, 9.7656, 3350.0], [48.423, 9.7626, 3326.9], [48.4218, 9.7558, 3298.1], [48.4213, 9.6712, 3255.8], [48.4203, 9.6312, 3213.5], [48.418, 9.7101, 3171.2], [48.4165, 9.749, 3142.9], [48.4156, 9.7481, 3128.8], [48.414, 9.7492, 3104.5], [48.4121, 9.751, 3076.3], [48.4126, 9.7545, 3034.6], [48.4135, 9.7586, 2997.4], [48.4149, 9.7645, 2983.3], [48.4157, 9.7679, 2975.0], [48.4156, 9.7676, 2975.0], [48.4161, 9.7711, 2957.1], [48.4169, 9.7767, 2928.8], [48.4171, 9.7795, 2912.8], [48.4173, 9.782, 2897.4], [48.4171, 9.7851, 2869.2], [48.4167, 9.789, 2832.1], [48.4156, 9.7946, 2775.6], [48.4144, 9.7988, 2726.9], [48.4132, 9.8016, 2684.6], [48.4116, 9.8056, 2664.1], [48.41, 9.8098, 2650.0]]}, {"id": 594, "route": "AFR42KA", "score": 56.62, "reason": "len_ratio", "injected": true, "atype": "rodeo", "feats": {"len_ratio": 9.5118, "turn_sum": 239.061, "vrate_max": 161.6}, "path": [[49.4732, 11.3296, 3775.0], [49.5313, 11.3662, 3788.5], [49.5892, 11.4, 3776.9], [49.6481, 11.4194, 3615.4], [49.7058, 11.4383, 3453.8], [49.7618, 11.4574, 3292.3], [49.8157, 11.4778, 3153.8], [49.8671, 11.5001, 3046.2], [49.9158, 11.5221, 2953.8], [49.9616, 11.5434, 2873.1], [50.0039, 11.5673, 2859.6], [50.0425, 11.5908, 2873.1], [50.0787, 11.6013, 2736.5], [50.1111, 11.6078, 2575.0], [50.139, 11.6168, 2494.2], [50.1626, 11.6231, 2409.6], [50.1819, 11.6264, 2301.9], [50.1966, 11.6272, 2198.1], [50.2067, 11.6256, 2103.8], [50.212, 11.622, 2021.2], [50.2125, 11.6168, 1953.8], [50.2082, 11.6099, 1909.6], [50.1991, 11.6012, 1882.7], [50.1858, 11.5871, 1817.3], [50.1679, 11.5693, 1736.5], [50.1455, 11.5502, 1678.8], [50.1189, 11.5288, 1625.0], [50.0887, 11.5004, 1490.4], [50.0544, 11.4712, 1375.0], [50.0156, 11.4484, 1375.0], [49.9738, 11.4208, 1348.1], [49.9295, 11.3845, 1253.8], [49.8823, 11.3485, 1176.9], [49.8322, 11.3137, 1123.1], [49.7799, 11.2771, 1069.2], [49.7259, 11.2393, 1015.4], [49.6701, 11.2028, 980.8], [49.6131, 11.1664, 953.8], [49.556, 11.1235, 903.8], [49.4986, 11.0793, 850.0]]}, {"id": 581, "route": "DEKAT", "score": 53.8593, "reason": "vrate_max", "injected": false, "atype": null, "feats": {"len_ratio": 1.0161, "turn_sum": 909.268, "vrate_max": 8179.5}, "path": [[48.8752, 10.8421, 14000.0], [48.8745, 10.8421, 14000.0], [48.8759, 10.8421, 15859.0], [48.8846, 10.8423, 24038.5], [48.8932, 10.8425, 24782.1], [48.9017, 10.8426, 16602.6], [48.9079, 10.8427, 14000.0], [48.9131, 10.8428, 14000.0], [48.9174, 10.8429, 14000.0], [48.9209, 10.8429, 14000.0], [48.9203, 10.8429, 14000.0], [48.9232, 10.843, 14000.0], [48.9324, 10.8431, 14000.0], [48.9395, 10.8433, 14000.0], [48.9451, 10.8434, 14000.0], [48.9515, 10.8435, 14000.0], [48.958, 10.8436, 14000.0], [48.964, 10.8437, 14000.0], [48.9697, 10.8438, 14000.0], [48.9748, 10.8439, 14000.0], [48.979, 10.844, 14000.0], [48.9821, 10.8441, 14000.0], [48.9872, 10.8441, 14000.0], [48.9929, 10.8442, 14000.0], [48.9979, 10.8443, 14000.0], [49.0036, 10.8444, 14000.0], [49.0126, 10.8446, 14000.0], [49.0177, 10.8447, 14000.0], [49.0173, 10.8447, 14000.0], [49.0228, 10.8448, 14000.0], [49.0318, 10.845, 14000.0], [49.0365, 10.845, 14000.0], [49.0407, 10.8451, 14000.0], [49.0459, 10.8452, 14000.0], [49.0524, 10.8454, 14000.0], [49.0615, 10.8455, 14000.0], [49.0685, 10.8457, 14000.0], [49.0739, 10.8458, 14000.0], [49.0801, 10.8459, 14000.0], [49.0866, 10.846, 14000.0]]}], "examples_by_type": {"go_around": {"id": 629, "route": "OCN600", "score": 9.1087, "reason": "vrate_max", "injected": true, "atype": "go_around", "feats": {"len_ratio": 1.0085, "turn_sum": 377.194, "vrate_max": 1421.4}, "path": [[50.0172, 8.5261, 275.0], [50.0147, 8.526, 0.0], [50.0122, 8.5259, 0.0], [50.0097, 8.5259, 0.0], [50.0072, 8.5258, 0.0], [50.0051, 8.5258, 0.0], [50.0029, 8.5257, 0.0], [50.0008, 8.5257, 0.0], [49.9983, 8.5257, 0.0], [49.9944, 8.5257, 0.0], [49.9904, 8.5257, 0.0], [49.9865, 8.5257, 0.0], [49.9838, 8.5257, 0.0], [49.9839, 8.5257, 0.0], [49.9841, 8.5257, 0.0], [49.9843, 8.5257, 0.0], [49.9826, 8.5258, 0.0], [49.9781, 8.5261, 0.0], [49.9736, 8.5264, 0.0], [49.9691, 8.5267, 0.0], [49.9658, 8.527, 0.0], [49.9636, 8.5272, 0.0], [49.9615, 8.5274, 0.0], [49.9593, 8.5276, 0.0], [49.9567, 8.5279, 0.0], [49.9538, 8.5281, 0.0], [49.9509, 8.5284, 0.0], [49.948, 8.5286, 0.0], [49.9431, 8.529, 0.0], [49.9373, 8.5295, 0.0], [49.9315, 8.53, 0.0], [49.9258, 8.5305, 0.0], [49.9219, 8.5308, 0.0], [49.9184, 8.5312, 0.0], [49.915, 8.5315, 0.0], [49.9115, 8.5318, 420.7], [49.907, 8.5321, 1790.8], [49.9024, 8.5325, 3189.8], [49.8978, 8.5329, 4603.6], [49.8932, 8.5333, 6025.0]]}, "descenso_anomalo": {"id": 435, "route": "SXS5YP", "score": 5.2713, "reason": "vrate_max", "injected": true, "atype": "descenso_anomalo", "feats": {"len_ratio": 1.0181, "turn_sum": 899.656, "vrate_max": 858.1}, "path": [[48.5001, 13.2754, 37000.0], [48.4989, 13.2786, 37000.0], [48.5006, 13.2742, 37000.0], [48.5121, 13.2437, 37000.0], [48.5232, 13.2142, 37000.0], [48.534, 13.1857, 37000.0], [48.5419, 13.1647, 37000.0], [48.5485, 13.1472, 37000.0], [48.554, 13.1327, 37000.0], [48.5585, 13.1206, 37000.0], [48.558, 13.1221, 37000.0], [48.5617, 13.1121, 37000.0], [48.5731, 13.0819, 37000.0], [48.5821, 13.0579, 37000.0], [48.5895, 13.0382, 37000.0], [48.5977, 13.0164, 37000.0], [48.606, 12.9942, 37000.0], [48.6137, 12.9738, 37000.0], [48.6209, 12.9544, 37000.0], [48.6272, 12.9375, 37000.0], [48.6322, 12.9239, 36571.0], [48.6361, 12.9135, 35712.9], [48.6424, 12.8967, 34854.9], [48.6496, 12.8774, 33996.8], [48.6558, 12.8607, 33138.8], [48.6629, 12.8414, 32280.7], [48.6746, 12.81, 31422.7], [48.6812, 12.7923, 30564.6], [48.6805, 12.7941, 29706.6], [48.6876, 12.7752, 28848.5], [48.699, 12.7444, 27990.5], [48.7048, 12.729, 27132.4], [48.7098, 12.7158, 26274.4], [48.7161, 12.6988, 25416.3], [48.724, 12.6776, 24558.2], [48.7353, 12.6471, 23700.2], [48.7441, 12.6231, 22842.1], [48.7509, 12.6047, 21984.1], [48.7594, 12.5818, 21126.0], [48.7683, 12.5577, 20268.0]]}, "rodeo": {"id": 184, "route": "JEI444", "score": 85.498, "reason": "len_ratio", "injected": true, "atype": "rodeo", "feats": {"len_ratio": 13.8434, "turn_sum": 187.879, "vrate_max": 144.2}, "path": [[48.1814, 11.4215, 3775.0], [48.2449, 11.4602, 3794.2], [48.3079, 11.4987, 3813.5], [48.368, 11.5332, 3825.0], [48.4238, 11.5616, 3825.0], [48.4779, 11.5892, 3825.0], [48.53, 11.6167, 3709.6], [48.5797, 11.643, 3565.4], [48.6271, 11.6683, 3436.5], [48.6731, 11.6939, 3369.2], [48.7157, 11.7176, 3301.9], [48.7553, 11.7395, 3223.1], [48.791, 11.7595, 3136.5], [48.8227, 11.777, 3050.0], [48.8523, 11.7949, 3059.6], [48.8774, 11.8102, 3069.2], [48.8959, 11.8201, 3032.7], [48.9068, 11.8231, 2926.9], [48.9127, 11.8232, 2821.2], [48.9151, 11.8224, 2761.5], [48.9127, 11.8191, 2713.5], [48.9054, 11.8128, 2663.5], [48.8926, 11.8031, 2605.8], [48.8748, 11.7905, 2548.1], [48.8524, 11.7753, 2490.4], [48.8254, 11.7575, 2432.7], [48.7939, 11.7371, 2375.0], [48.7581, 11.714, 2336.5], [48.7182, 11.6885, 2298.1], [48.6747, 11.6611, 2271.2], [48.628, 11.6321, 2261.5], [48.5781, 11.6012, 2251.9], [48.5242, 11.5674, 2196.2], [48.4675, 11.5316, 2128.8], [48.4083, 11.4945, 2065.4], [48.3473, 11.4564, 2017.3], [48.2848, 11.4175, 1969.2], [48.2213, 11.378, 1921.2], [48.1572, 11.3383, 1873.1], [48.0927, 11.2983, 1825.0]]}, "holding": {"id": 116, "route": "DKDWM", "score": 189.6953, "reason": "len_ratio", "injected": true, "atype": "holding", "feats": {"len_ratio": 29.474, "turn_sum": 2015.435, "vrate_max": 56.4}, "path": [[49.5794, 9.9339, 6950.0], [49.5795, 9.9343, 6950.0], [49.5793, 9.9336, 6943.6], [49.5781, 9.9291, 6915.4], [49.5769, 9.9247, 6887.2], [49.5759, 9.9204, 6859.0], [49.575, 9.9171, 6830.8], [49.5742, 9.9144, 6802.6], [49.5736, 9.9124, 6787.2], [49.5731, 9.9108, 6776.9], [49.5732, 9.9111, 6791.0], [49.5724, 9.9099, 6789.7], [49.5703, 9.9061, 6761.5], [49.5684, 9.9032, 6783.3], [49.5667, 9.901, 6839.7], [49.5648, 9.899, 6838.5], [49.6509, 10.0143, 6825.0], [49.6748, 9.8024, 6825.0], [49.4625, 9.7834, 6828.8], [49.4527, 9.9928, 6842.9], [49.663, 9.9914, 6835.9], [49.6537, 9.7793, 6807.7], [49.4416, 9.7946, 6800.0], [49.4655, 10.0024, 6800.0], [49.6728, 9.9664, 6800.0], [49.629, 9.7571, 6794.9], [49.4215, 9.8043, 6766.7], [49.479, 10.0055, 6750.0], [49.5473, 9.8758, 6750.0], [49.5459, 9.8736, 6723.1], [49.5438, 9.87, 6680.8], [49.5427, 9.8681, 6675.0], [49.5418, 9.8665, 6673.7], [49.5405, 9.8648, 6659.6], [49.539, 9.8625, 6641.0], [49.5369, 9.8589, 6612.8], [49.5354, 9.8561, 6600.0], [49.5343, 9.8538, 6600.0], [49.5326, 9.8514, 6589.1], [49.5309, 9.8489, 6575.0]]}}}, "bbox": {"min_lat": 48.0927, "max_lat": 55.1191, "min_lon": 8.2575, "max_lon": 13.2786}};
+const M = DATA.meta, R = DATA.result;
+const TYPE_COLOR = {rodeo:'#3fd0ff', holding:'#ffb000', descenso_anomalo:'#ff5247', go_around:'#c77dff', normal:'#39ff7a'};
+const TYPE_NAME  = {rodeo:'RODEO', holding:'HOLDING', descenso_anomalo:'DESCENSO', go_around:'GO-AROUND'};
+const REASON     = {len_ratio:'desvío de ruta', turn_sum:'curvatura', vrate_max:'tasa vertical'};
+const reduce = matchMedia('(prefers-reduced-motion:reduce)').matches;
+const SVGNS = 'http://www.w3.org/2000/svg';
+const el = (n,a={})=>{const e=document.createElementNS(SVGNS,n);for(const k in a)e.setAttribute(k,a[k]);return e;};
+const pct = v => (v==null?'—':(v*100).toFixed(v>=0.999?0:1));
+const colOf = t => TYPE_COLOR[t&&t.atype] || TYPE_COLOR.normal;
+
+/* ---------- status readout ---------- */
+(function(){
+  const nodes = (M.healthy_workers&&M.healthy_workers.length?M.healthy_workers:(M.workers||[]).map(w=>w.name)).join(' · ')||'—';
+  const cells = [
+    ['CONTACTOS', (R.n_traj||0).toLocaleString('es')],
+    ['INYECTADAS', R.n_injected||0],
+    ['NODOS', nodes],
+    ['CHUNKS', (M.completed||0)+'/'+(M.n_chunks||0)],
+    ['T', (M.elapsed!=null?M.elapsed+'s':'—')],
+    ['JOB', M.job_id||'—'],
+  ];
+  document.getElementById('readout').innerHTML = cells.map(c=>
+    `<span class="cell alert">${c[0]} <b>${c[1]}</b></span>`).join('');
+  document.getElementById('foot-job').textContent = M.job_id||'';
+})();
+
+/* ---------- proyección geográfica al scope ---------- */
+const CX=300, CY=300, RAD=270;
+function proj(lat, lon){
+  const b=DATA.bbox;
+  const mlat=(b.min_lat+b.max_lat)/2, mlon=(b.min_lon+b.max_lon)/2;
+  const span=Math.max(b.max_lat-b.min_lat, b.max_lon-b.min_lon, 0.01);
+  const sc=(RAD*1.62)/span;
+  return [CX+(lon-mlon)*sc, CY-(lat-mlat)*sc];
+}
+const dOf = path => path.map((p,i)=>{const xy=proj(p[0],p[1]);return (i?'L':'M')+xy[0].toFixed(1)+' '+xy[1].toFixed(1);}).join(' ');
+function farthestIdx(path){ // waypoint mas lejos de la recta origen-destino (la maniobra)
+  const a=proj(path[0][0],path[0][1]), b=proj(path[path.length-1][0],path[path.length-1][1]);
+  let bi=0,bd=-1; const L=Math.hypot(b[0]-a[0],b[1]-a[1])||1;
+  for(let i=1;i<path.length-1;i++){const p=proj(path[i][0],path[i][1]);
+    const d=Math.abs((b[1]-a[1])*p[0]-(b[0]-a[0])*p[1]+b[0]*a[1]-b[1]*a[0])/L;
+    if(d>bd){bd=d;bi=i;}}
+  return bi;
+}
+
+/* ---------- construir el scope ---------- */
+const scope = document.getElementById('scope');
+function gridScope(){
+  const g=el('g');
+  [RAD,RAD*0.72,RAD*0.46,RAD*0.2].forEach((r,i)=>{
+    g.appendChild(el('circle',{class:'ring'+(i===0?' r-out':''),cx:CX,cy:CY,r}));});
+  g.appendChild(el('line',{class:'cross',x1:CX-RAD,y1:CY,x2:CX+RAD,y2:CY}));
+  g.appendChild(el('line',{class:'cross',x1:CX,y1:CY-RAD,x2:CX,y2:CY+RAD}));
+  for(let a=0;a<360;a+=30){
+    const rad=(a-90)*Math.PI/180, x=CX+Math.cos(rad)*(RAD+12), y=CY+Math.sin(rad)*(RAD+12);
+    const t=el('text',{class:'az',x,y,'text-anchor':'middle','dominant-baseline':'middle'});
+    t.textContent=String(a).padStart(3,'0'); g.appendChild(t);
+  }
+  g.appendChild(el('circle',{class:'center',cx:CX,cy:CY,r:2.5}));
+  scope.appendChild(g);
+}
+gridScope();
+
+const planes=[]; // {pathEl,len,plane,dir,color}
+const trackById={};
+function drawTracks(){
+  const clip=el('clipPath',{id:'scopeclip'}); clip.appendChild(el('circle',{cx:CX,cy:CY,r:RAD-2}));
+  scope.appendChild(clip);
+  const layer=el('g',{'clip-path':'url(#scopeclip)'}); scope.appendChild(layer);
+  const maxScore=Math.max(...R.top_k.map(t=>t.score),1);
+  R.top_k.forEach((t,i)=>{
+    const color=colOf(t), d=dOf(t.path);
+    const pth=el('path',{class:'track',d,stroke:color,'data-id':t.id});
+    layer.appendChild(pth);
+    // halo en la maniobra
+    const fp=proj(...[t.path[farthestIdx(t.path)][0],t.path[farthestIdx(t.path)][1]]);
+    const halo=el('circle',{class:'halo',cx:fp[0],cy:fp[1],r:3,stroke:color});
+    if(!reduce) halo.style.animation=`pulse ${1.6+ (i%4)*0.25}s ease-in-out ${i*0.12}s infinite`;
+    layer.appendChild(halo);
+    // avion (triangulo apuntando a +x)
+    const plane=el('polygon',{class:'plane',points:'9,0 -6,5 -6,-5',fill:color,
+      stroke:'#04100a','stroke-width':'.6'});
+    layer.appendChild(plane);
+    // datablock (oculto; aparece al seleccionar)
+    const db=el('g',{class:'db','data-db':t.id,opacity:0});
+    const txt=el('text',{x:0,y:0});
+    txt.textContent=`#${i+1} ${t.route} ${TYPE_NAME[t.atype]||''} z${Math.round(t.score)}`;
+    db.appendChild(txt); layer.appendChild(db);
+    const L=pth.getTotalLength();
+    if(!reduce){pth.style.strokeDasharray=L;pth.style.strokeDashoffset=L;}
+    planes.push({pth,L,plane,db,txt,color,len:t.path.length});
+    trackById[t.id]={pth,db,plane,halo};
+  });
+}
+drawTracks();
+
+/* ---------- animación: trazado en cascada + aviones recorriendo ---------- */
+function revealAndFly(){
+  planes.forEach((o,i)=>{
+    if(!reduce){
+      o.pth.animate([{strokeDashoffset:o.L},{strokeDashoffset:0}],
+        {duration:1100,delay:i*150,easing:'cubic-bezier(.2,.7,.2,1)',fill:'forwards'});
+    }
+  });
+  let t0=null;
+  function frame(ts){
+    if(t0==null)t0=ts;
+    const base=(ts-t0)/5200; // periodo de vuelo
+    planes.forEach((o,i)=>{
+      const u=((base+i/planes.length)%1);
+      const pt=o.pth.getPointAtLength(u*o.L);
+      const pt2=o.pth.getPointAtLength(Math.min(o.L,u*o.L+1));
+      const ang=Math.atan2(pt2.y-pt.y,pt2.x-pt.x)*180/Math.PI;
+      o.plane.setAttribute('transform',`translate(${pt.x.toFixed(1)},${pt.y.toFixed(1)}) rotate(${ang.toFixed(0)})`);
+      if(+o.db.getAttribute('opacity')>0) o.db.setAttribute('transform',`translate(${(pt.x+10).toFixed(1)},${(pt.y-8).toFixed(1)})`);
+    });
+    requestAnimationFrame(frame);
+  }
+  if(!reduce) requestAnimationFrame(frame);
+  else planes.forEach(o=>{const pt=o.pth.getPointAtLength(o.L*0.5);
+    o.plane.setAttribute('transform',`translate(${pt.x},${pt.y})`);});
+}
+revealAndFly();
+
+/* ---------- flight strips ---------- */
+const stripsEl=document.getElementById('strips');
+const maxScore=Math.max(...R.top_k.map(t=>t.score),1);
+R.top_k.forEach((t,i)=>{
+  const color=colOf(t);
+  const s=document.createElement('div');
+  s.className='strip'; s.style.borderLeftColor=color; s.dataset.id=t.id;
+  s.innerHTML=`
+    <div class="rank">${String(i+1).padStart(2,'0')}</div>
+    <div>
+      <div class="cs">${t.route} <span class="kind" style="color:${color}">${TYPE_NAME[t.atype]||'—'}</span></div>
+      <div class="meta">ICAO ${String(t.id).padStart(5,'0')} · ${REASON[t.reason]||t.reason} · ${t.injected?'GROUND-TRUTH ✓':'—'}</div>
+      <div class="bar" style="color:${color}"><i data-w="${(t.score/maxScore*100).toFixed(1)}"></i></div>
+    </div>
+    <div class="sc"><b>${Math.round(t.score)}</b><div class="z">σ-ROB</div></div>`;
+  const hi=on=>{ for(const id in trackById){const o=trackById[id];
+      o.pth.classList.toggle('dim', on && +id!==t.id);}
+    const o=trackById[t.id]; if(o){o.db.setAttribute('opacity',on?1:0);}
+    s.classList.toggle('sel',on);};
+  s.addEventListener('mouseenter',()=>hi(true));
+  s.addEventListener('mouseleave',()=>hi(false));
+  stripsEl.appendChild(s);
+});
+requestAnimationFrame(()=>document.querySelectorAll('.bar > i').forEach(b=>b.style.width=b.dataset.w+'%'));
+
+/* ---------- gauges (count-up) ---------- */
+function gauge(lab,val,cls,sub){return `<div class="gauge ${cls}"><div class="lab">${lab}</div>
+  <div class="val" data-to="${val.to}" data-dec="${val.dec||0}" data-suf="${val.suf||''}">0${val.suf||''}</div>
+  <div class="sub">${sub}</div></div>`;}
+const REAL = M.task_name === 'task_adsb_real';
+document.getElementById('tag-sector').textContent = REAL
+  ? 'DATOS REALES · OpenSky Network · DETECCIÓN NO SUPERVISADA'
+  : 'DATOS SINTÉTICOS · DETECCIÓN DISTRIBUIDA NO SUPERVISADA';
+const realHits = (R.top_k||[]).filter(t=>!t.injected).length;
+document.getElementById('gauges').innerHTML=[
+  gauge('RECALL',{to:(R.recall||0)*100,suf:'%'},'good', REAL?'anomalías inyectadas detectadas (validación)':'anomalías detectadas (umbral σ≥'+R.z_threshold+')'),
+  gauge('PRECISION@'+R.k,{to:(R.precision_at_k||0)*100,suf:'%'},'', REAL?'top-k inyectadas; el resto = hallazgos reales':'top-k que son anomalías reales'),
+  REAL ? gauge('HALLAZGOS',{to:realHits},'good','vuelos reales anómalos en el top-k')
+       : gauge('FALSOS POS.',{to:(R.false_positive_rate||0)*100,dec:2,suf:'%'},((R.false_positive_rate||0)<0.02?'good':'warn'),'normales marcadas por error'),
+  gauge('SPEEDUP',{to:M.speedup||0,dec:2,suf:'×'},((M.speedup||0)>=1?'good':'warn'), REAL?'pocos datos → domina la red (ver sintético)':(M.elapsed||'?')+'s vs '+(M.elapsed_baseline||'?')+'s base'),
+  gauge('TP / FP',{to:R.tp||0},'','vs '+(R.fp||0)+' · σ-robusto'),
+].join('');
+document.querySelectorAll('.gauge .val').forEach(v=>{
+  const to=+v.dataset.to, dec=+v.dataset.dec, suf=v.dataset.suf;
+  if(reduce){v.innerHTML=to.toFixed(dec)+`<span class="u">${suf}</span>`;return;}
+  let t0=null; const dur=1000;
+  function step(ts){if(t0==null)t0=ts;const k=Math.min(1,(ts-t0)/dur);const e=1-Math.pow(1-k,3);
+    v.innerHTML=(to*e).toFixed(dec)+`<span class="u">${suf}</span>`;if(k<1)requestAnimationFrame(step);}
+  requestAnimationFrame(step);
+});
+
+/* ---------- mini-scopes por patrón ---------- */
+const patsEl=document.getElementById('pats');
+['rodeo','holding','descenso_anomalo','go_around'].forEach(tp=>{
+  const t=R.examples_by_type[tp]; const color=TYPE_COLOR[tp];
+  const div=document.createElement('div'); div.className='pat';
+  if(!t){div.innerHTML=`<div style="height:96px;display:flex;align-items:center;justify-content:center;color:var(--ink-dim);font-size:10px">SIN MUESTRA</div>
+    <div class="pk" style="color:${color}">${TYPE_NAME[tp]}</div>`;patsEl.appendChild(div);return;}
+  // mini svg con bbox propio del path
+  const lats=t.path.map(p=>p[0]),lons=t.path.map(p=>p[1]);
+  const mnla=Math.min(...lats),mxla=Math.max(...lats),mnlo=Math.min(...lons),mxlo=Math.max(...lons);
+  const span=Math.max(mxla-mnla,mxlo-mnlo,0.01), s=70/span;
+  const d=t.path.map((p,i)=>{const x=50+(p[1]-(mnlo+mxlo)/2)*s,y=48-(p[0]-(mnla+mxla)/2)*s;
+    return (i?'L':'M')+x.toFixed(1)+' '+y.toFixed(1);}).join(' ');
+  const ns='http://www.w3.org/2000/svg';
+  div.innerHTML=`<svg viewBox="0 0 100 96"><path d="${d}" fill="none" stroke="${color}" stroke-width="1.6"
+      stroke-linejoin="round" stroke-linecap="round" style="filter:drop-shadow(0 0 3px ${color})"/></svg>
+    <div class="pk" style="color:${color}">${TYPE_NAME[tp]}</div>
+    <div class="pm">${t.route} · z${Math.round(t.score)} · ${REASON[t.reason]||t.reason}</div>`;
+  // animar trazado
+  const path=div.querySelector('path');
+  if(!reduce){const L=path.getTotalLength();path.style.strokeDasharray=L;path.style.strokeDashoffset=L;
+    path.animate([{strokeDashoffset:L},{strokeDashoffset:0}],{duration:1200,delay:300,fill:'forwards',easing:'ease-out'});}
+  patsEl.appendChild(div);
+});
+
+/* ---------- distribución por worker + sparkline ---------- */
+(function(){
+  const pw=DATA.per_worker||{}; const names=Object.keys(pw);
+  const maxc=Math.max(1,...names.map(n=>pw[n].chunks||0));
+  document.getElementById('dist').innerHTML=names.map(n=>{
+    const c=pw[n].chunks||0, sec=(pw[n].busy_seconds||0).toFixed(1);
+    return `<div class="row"><div class="wn">${n}</div>
+      <div class="track2"><i data-w="${(c/maxc*100).toFixed(0)}"></i></div>
+      <div class="cn">${c} <span style="opacity:.6">· ${sec}s</span></div></div>`;}).join('')
+    || '<div style="color:var(--ink-dim);font-size:11px">sin datos de workers</div>';
+  requestAnimationFrame(()=>document.querySelectorAll('.dist .track2 > i').forEach(b=>b.style.width=b.dataset.w+'%'));
+  const pc=DATA.per_chunk||[]; const mx=Math.max(1,...pc.map(c=>c.seconds||0));
+  document.getElementById('spark').innerHTML=pc.map(c=>
+    `<i style="height:${Math.max(4,(c.seconds||0)/mx*100)}%" title="chunk ${c.chunk_id}: ${c.seconds}s @${c.worker}"></i>`).join('');
+})();
+</script>
+</body>
+</html>

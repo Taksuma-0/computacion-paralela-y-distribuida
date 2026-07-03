@@ -3,6 +3,7 @@
 
 $ErrorActionPreference = "Stop"
 Set-Location -Path $PSScriptRoot   # carpeta demo_adsb/
+$env:PYTHONIOENCODING = "utf-8"     # acentos/glifos correctos en la consola Windows
 
 # Asegura las dependencias de la TUI (la tarea y el orquestador son stdlib puro).
 $haveDeps = $false

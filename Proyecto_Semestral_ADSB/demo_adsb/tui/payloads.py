@@ -2,8 +2,8 @@
 
 # (clave, etiqueta, archivo de tarea, payload JSON por defecto)
 TASKS = [
-    ("adsb", "ADS-B anomalias (ranking top-k)", "tasks/task_adsb.py",
-     '{"seed": 7, "num_traj": 60000, "n_chunks": 40, "anomaly_rate": 0.01, "top_k": 10, "n_routes": 6, "z_threshold": 4.0}'),
+    ("adsb_real", "ADS-B REAL (datos OpenSky)", "tasks/task_adsb_real.py",
+     '{"data": "data/trayectorias_reales.json", "n_chunks": 8, "top_k": 12, "inject": 12, "seed": 7, "z_threshold": 4.0}'),
 ]
 
 # task_file -> payload por defecto (para autocompletar el Input)

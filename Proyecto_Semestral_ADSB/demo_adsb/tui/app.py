@@ -36,7 +36,7 @@ from . import events as ev
 from .banner import BLUE, GREEN, banner_markup, header_markup
 from .payloads import TASKS
 from .ssh_tail import tail_worker
-from .widgets import ClusterFlow, GlobalProgress, SpeedupCard, WorkerPanel
+from .widgets import AlertsCard, ClusterFlow, GlobalProgress, SpeedupCard, WorkerPanel
 
 import baseline_seq
 import coordinator_generic
@@ -60,6 +60,31 @@ def _short_chunk(chunk, n=42):
     except Exception:
         s = str(chunk)
     return s if len(s) <= n else s[:n - 1] + "~"
+
+
+def _fmt_chunk(cid, chunk):
+    """Resumen limpio de un lote asignado (en vez del volcado JSON crudo)."""
+    try:
+        trajs = (chunk or {}).get("trajs")
+        if trajs:
+            cs = ", ".join(str(t.get("callsign") or t.get("id")) for t in trajs[:3])
+            return f"lote #{cid} · {len(trajs)} vuelos · {cs}{'…' if len(trajs) > 3 else ''}"
+        n = (chunk or {}).get("n") or (chunk or {}).get("num_traj")
+        return f"lote #{cid}" + (f" · {n} trayectorias" if n else "")
+    except Exception:
+        return f"lote #{cid}"
+
+
+def _count_alerts(rp):
+    """Cuenta anomalías (score >= umbral) en el resultado parcial de un lote."""
+    try:
+        if not rp:
+            return 0
+        thr = rp.get("z_threshold", 4.0)
+        top = rp.get("top_local") or rp.get("top_k") or []
+        return sum(1 for t in top if t.get("injected") and (t.get("score") or 0) >= thr)
+    except Exception:
+        return 0
 
 
 # ============================================================
@@ -130,7 +155,7 @@ class LauncherScreen(Screen):
         with Vertical(id="menu"):
             with Horizontal(classes="row"):
                 yield Label("Tarea:  ")
-                yield Label("ADS-B · detección de anomalías de vuelo (única tarea)", id="task-fixed")
+                yield Label("ADS-B REAL · detección sobre datos de OpenSky", id="task-fixed")
             with Horizontal(classes="row"):
                 yield Label("Modo:   ")
                 yield Select([(MODES["local"]["label"], "local"),
@@ -140,11 +165,11 @@ class LauncherScreen(Screen):
                 yield Label("Payload:")
                 yield Input(value=TASKS[0][3], id="payload")
             with Horizontal(classes="row"):
-                yield Button("⏻ Despertar clúster QEMU", id="btn-boot", classes="-go")
-                yield Button("▶ Ejecutar", id="btn-run")
-                yield Button("⏼ Apagar clúster", id="btn-shutdown", classes="-danger")
+                yield Button("⏻ Encender estaciones", id="btn-boot", classes="-go")
+                yield Button("▶ Ejecutar barrido", id="btn-run")
+                yield Button("⏼ Apagar estaciones", id="btn-shutdown", classes="-danger")
                 yield Button("Salir", id="btn-quit")
-        yield Static("clúster:  (sin sondear)", id="cluster-status")
+        yield Static("estaciones radar:  (sin sondear)", id="cluster-status")
         yield RichLog(id="launch-log", markup=False, highlight=False, max_lines=300)
         yield Footer()
 
@@ -171,7 +196,7 @@ class LauncherScreen(Screen):
     def _cfg(self):
         return {
             "mode": self.query_one("#mode", Select).value,
-            "task_key": "adsb",
+            "task_key": "adsb_real",
             "payload": self.query_one("#payload", Input).value,
         }
 
@@ -186,7 +211,7 @@ class DashboardScreen(Screen):
         Binding("q", "back", "Volver"),
         Binding("escape", "back", "Volver", show=False),
         Binding("b", "back", "Volver", show=False),
-        Binding("a", "apagar", "Apagar clúster"),
+        Binding("a", "apagar", "Apagar estaciones"),
     ]
 
     def __init__(self, workers, mode_label, task_label):
@@ -198,6 +223,7 @@ class DashboardScreen(Screen):
         self.flow = None
         self.progress = None
         self.speed = None
+        self.alerts = None
         self.elog = None
 
     def compose(self):
@@ -215,6 +241,8 @@ class DashboardScreen(Screen):
         with Horizontal(id="bottom"):
             self.progress = GlobalProgress()
             yield self.progress
+            self.alerts = AlertsCard()
+            yield self.alerts
             self.speed = SpeedupCard()
             yield self.speed
         self.elog = RichLog(id="event-log", markup=False, highlight=False, max_lines=500)
@@ -250,6 +278,7 @@ class ClusterTUI(App):
         self._job_t0 = None
         self.vm_states = {}
         self._cluster_busy = False      # hay un arranque/apagado de cluster en curso
+        self._reprobe_running = False   # re-sondeo de estado del cluster en curso
         self.local_agents = None
         self._tail_stop = False
         self._tail_threads = []
@@ -294,6 +323,38 @@ class ClusterTUI(App):
         self._log("Despertando clúster QEMU (headless, WHPX)… mira la línea de estado.")
         threading.Thread(target=cc.boot_cluster, args=(self.bus.put,),
                          kwargs={"deadline": 150}, daemon=True).start()
+
+    def _start_cluster_reprobe(self, failed):
+        """Re-sondea en segundo plano los nodos que quedaron sin SSH: cuando responden,
+        emite VM_STATE ready para que la línea de estado se auto-corrija (deja de quedar
+        congelada en ✗ tras un arranque lento)."""
+        if self._reprobe_running:
+            return
+        pending = [n for n in failed if n in cc.NODES]
+        if not pending:
+            return
+        self._reprobe_running = True
+
+        def _loop():
+            deadline = time.monotonic() + 360.0        # hasta ~6 min
+            try:
+                while pending and time.monotonic() < deadline:
+                    for n in list(pending):
+                        try:
+                            if cc.ssh_ready(cc.NODES[n]):
+                                self.bus.put({"kind": ev.VM_STATE, "node": n, "state": "ready"})
+                                pending.remove(n)
+                        except Exception:
+                            pass
+                    if pending:
+                        time.sleep(5)
+                if not pending:
+                    self.bus.put({"kind": ev.LOG,
+                                  "msg": "Clúster recuperado: estaciones en línea."})
+            finally:
+                self._reprobe_running = False
+
+        threading.Thread(target=_loop, daemon=True).start()
 
     def shutdown_cluster(self):
         if self._cluster_busy:
@@ -417,20 +478,23 @@ class ClusterTUI(App):
         elif kind == ev.VM_STATE:
             self._set_vm_state(e.get("node"), e.get("state"))
         elif kind == ev.VM_STDOUT:
-            p = self._panel(e.get("worker"))
-            if p:
-                p.append_line(e.get("line", ""))
+            line = e.get("line", "")
+            if "in={" not in line:               # oculta el volcado JSON crudo del agente
+                p = self._panel(e.get("worker"))
+                if p:
+                    p.append_line(line)
         elif kind == ev.CLUSTER_READY:
             self._cluster_busy = False
             ready = e.get("ready", [])
             failed = e.get("failed", [])
             if failed:
-                self._log(f"Clúster PARCIAL: listos {ready} · sin SSH {failed}")
+                self._log(f"Red de radar PARCIAL: en línea {ready} · sin SSH {failed}")
+                self._start_cluster_reprobe(failed)
             else:
-                self._log(f"✓ Clúster listo ({len(ready)}/3). Ya puedes Ejecutar.")
+                self._log(f"✓ Estaciones radar en línea ({len(ready)}/3). Ya puedes Ejecutar.")
         elif kind == ev.CLUSTER_DOWN:
             self._cluster_busy = False
-            self._log("Clúster apagado.")
+            self._log("Estaciones de radar apagadas.")
 
         elif kind == "job_start":
             self.total_chunks = e.get("n_chunks", 0)
@@ -438,8 +502,10 @@ class ClusterTUI(App):
             self._job_t0 = time.monotonic()
             self._reset_dashboard()
             self._progress(0, self.total_chunks)
+            if self.dash and self.dash.flow:
+                self.dash.flow.set_phase("split")
             self._log(f"JOB {e.get('job_id')} | {e.get('task_name')} | "
-                      f"{self.total_chunks} chunks | workers {e.get('workers')}")
+                      f"{self.total_chunks} lotes | estaciones {e.get('workers')}")
         elif kind == "worker_ready":
             p = self._panel(e.get("worker"))
             if p:
@@ -459,20 +525,26 @@ class ClusterTUI(App):
             w = e.get("worker")
             if self.dash and self.dash.flow:
                 self.dash.flow.on_assigned(w)
+                self.dash.flow.set_phase("run")
             p = self._panel(w)
             if p:
-                p.current = _short_chunk(e.get("chunk"))
+                p.current = _fmt_chunk(e.get("cid"), e.get("chunk"))
                 p.set_state("trabajando")
         elif kind == "chunk_done":
             w = e.get("worker")
             secs = e.get("seconds") or 0.0
             if self.dash and self.dash.flow:
                 self.dash.flow.on_done(w)
+            a = _count_alerts(e.get("result_partial"))
             p = self._panel(w)
             if p:
                 p.chunks += 1
                 p.busy_seconds += secs
                 p.refresh_metrics()
+                p.flash()
+                p.append_line(f"✓ lote #{e.get('cid')} · {secs:.2f}s" + (f" · {a} alertas" if a else ""))
+            if a and self.dash and self.dash.alerts:
+                self.dash.alerts.add(a)
             self.done_chunks += 1
             self._progress(self.done_chunks, self.total_chunks)
         elif kind == "chunk_retry":
@@ -485,9 +557,15 @@ class ClusterTUI(App):
             self._log(f"chunk {e.get('cid')} ABANDONADO tras {e.get('attempts')} intentos")
         elif kind == "job_done":
             rec = e.get("record", {})
+            if self.dash and self.dash.flow:
+                self.dash.flow.set_phase("merge")
             sp, el, bl = rec.get("speedup"), rec.get("elapsed"), rec.get("elapsed_baseline")
             if self.dash and self.dash.speed and sp is not None and el is not None and bl:
                 self.dash.speed.update_speedup(sp, el, bl)
+            r = rec.get("result") or {}
+            if self.dash and self.dash.alerts and r:
+                ni = r.get("n_injected", 0)
+                self.dash.alerts.set_final(round((r.get("recall") or 0) * ni), ni)
             if self.dash:
                 for p in self.dash.panels.values():
                     if p.state == "trabajando":
@@ -499,7 +577,7 @@ class ClusterTUI(App):
             self._log(f"FIN: {rec.get('completed')}/{rec.get('n_chunks')} OK, "
                       f"{rec.get('retries')} reintentos, {len(rec.get('failed_chunks', []))} abandonados, "
                       f"{rec.get('elapsed')}s" + (f", speedup {sp}x" if sp else ""))
-            if rec.get("task_name") == "task_adsb":
+            if rec.get("task_name") in ("task_adsb", "task_adsb_real"):
                 self._adsb_report(rec)
 
     # ---------- helpers de UI ----------
@@ -528,6 +606,8 @@ class ClusterTUI(App):
             d.flow.reset()
             d.progress.reset()
             d.speed.reset()
+            if d.alerts:
+                d.alerts.reset()
         except Exception:
             pass
 

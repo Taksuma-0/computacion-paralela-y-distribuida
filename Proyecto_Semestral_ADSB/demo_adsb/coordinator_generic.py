@@ -323,9 +323,9 @@ def run_distributed(task_module, task_name, payload, raw_workers, specs, args, l
     for spec in specs:
         if deployer is not None:
             try:
-                changed = deployer.deploy(spec)
-                if changed:
-                    deployer.restart(spec)
+                deployer.deploy(spec)
+                deployer.restart(spec)   # SIEMPRE (re)arranca el agente: los archivos pueden estar
+                                         # al dia pero el agente NO estar corriendo (nodo excluido)
             except Exception as exc:
                 log(f"[{spec.name}] deploy fallo: {exc}")
         ok, reason = wait_for_worker_healthy(spec, task_module, task_name, payload,

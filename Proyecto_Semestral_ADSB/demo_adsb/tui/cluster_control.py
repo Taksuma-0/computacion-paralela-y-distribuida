@@ -57,7 +57,7 @@ def port_open(port: int, host: str = "127.0.0.1", timeout: float = 1.0) -> bool:
         return False
 
 
-def ssh_ready(ssh_port: int, timeout: float = 6.0) -> bool:
+def ssh_ready(ssh_port: int, timeout: float = 10.0) -> bool:
     """True si se puede autenticar por llave en root@127.0.0.1:ssh_port."""
     cli = paramiko.SSHClient()
     cli.set_missing_host_key_policy(paramiko.AutoAddPolicy())
@@ -154,6 +154,7 @@ def boot_cluster(emit, deadline: float = 220.0):
                 emit({"kind": ev.ERROR, "msg": f"No pude lanzar {node}: {exc}"})
                 continue
             emit({"kind": ev.LOG, "msg": f"{node}: QEMU lanzado"})
+            time.sleep(3)   # escalonar: menos contencion en el arranque en frio de varias VMs
 
     for node in NODES:
         emit({"kind": ev.VM_STATE, "node": node, "state": "booting"})

@@ -35,6 +35,7 @@ def banner_markup() -> str:
         f"[bold {GREEN}]A D S - B   A N O M A L Y   S C O P E[/]",
         f"[{BLUE}]deteccion distribuida de anomalias de vuelo[/]",
         "[dim]Computacion Paralela y Distribuida · UTEM[/]",
+        f"[{GREEN}]────────────< ✈ >────────────[/]",
     ]
     return "\n".join(rows) + "\n" + "\n".join(word)
 

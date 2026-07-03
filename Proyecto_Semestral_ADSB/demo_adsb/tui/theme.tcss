@@ -46,7 +46,7 @@ Button:disabled { background: #30363d; color: #6e7681; }
 #dash-header {
     height: 3;
     background: #161b22;
-    border: round #004E9A;
+    border: heavy #004E9A;
     content-align: left middle;
     padding: 0 1;
 }
@@ -62,11 +62,12 @@ WorkerPanel {
 }
 WorkerPanel.busy { border: round #7AB830; }
 WorkerPanel.down { border: round #b3261e; }
+WorkerPanel.flash { border: heavy #c6f78a; }
 WorkerPanel .metrics { height: auto; }
 WorkerPanel RichLog { height: 1fr; background: #0d1117; }
 
 ClusterFlow {
-    border: round #7AB830;
+    border: heavy #7AB830;
     background: #161b22;
     height: 1fr;
     padding: 1 2;
@@ -76,8 +77,14 @@ ClusterFlow {
 GlobalProgress {
     border: round #004E9A;
     background: #161b22;
-    width: 3fr;
+    width: 2fr;
     padding: 0 1;
+}
+AlertsCard {
+    border: round #d29922;
+    background: #161b22;
+    width: 1fr;
+    content-align: center middle;
 }
 SpeedupCard {
     border: round #7AB830;
