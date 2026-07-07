@@ -2,9 +2,15 @@
 
 Repositorio de trabajos practicos del ramo **INFB8090 - Computacion Paralela y Distribuida**.
 
-## Datos generales
+## Integrantes y autoria
 
-- Estudiante: Welinton Barrera Mondaca
+Detalle de quien participo en cada entrega (para revision del profesor):
+
+| Entrega | Integrantes |
+|---|---|
+| **Todos los laboratorios** | Joaquin Araya · Welinton Barrera Mondaca |
+| **Proyecto semestral** (deteccion distribuida de anomalias ADS-B) | Joaquin Araya · Welinton Barrera Mondaca · Juan Toledo |
+
 - Seccion: 412
 - Profesor: Dr. Ing. Michael Miranda Sandoval
 - Primer semestre 2026
