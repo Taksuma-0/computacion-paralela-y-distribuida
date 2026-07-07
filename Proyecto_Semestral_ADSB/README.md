@@ -2,7 +2,7 @@
 
 **Curso:** INF8090 · Computación Paralela y Distribuida — Ingeniería Civil en Ciencia de Datos (UTEM)
 **Sección:** 412 · **Docente:** Dr. Ing. Michael Miranda Sandoval
-**Integrantes:** Welinton Barrera Mondaca · Joaquin Araya · Juan Toledo
+**Integrantes:** Welinton Barrera Mondaca (wbarrera@utem.cl) · Joaquín Ignacio Araya Bustos (jarayabu@utem.cl) · Juan Cristóbal Toledo Fierro (jtoledof@utem.cl)
 
 Detección **no supervisada** de anomalías de comportamiento (rodeos, *holdings*, descensos anómalos,
 *go-arounds*) en trayectorias de vuelo **reales** (ADS-B, OpenSky Network), ejecutada de forma
@@ -20,7 +20,7 @@ TCP, cola dinámica y tolerancia a fallos), en modo local y en un clúster de VM
 | | |
 |---|---|
 | Sistema operativo | Windows 11 (build 10.0.26200) |
-| CPU | 16 hilos lógicos |
+| CPU | AMD Ryzen 7 6800H — 8 núcleos físicos / 16 hilos lógicos |
 | Memoria | ~15 GB RAM |
 | Python | 3.13.5 |
 | Librerías | textual 8.2.7 · rich 15.0.0 · paramiko 5.0.0 · requests 2.32.3 · numpy 2.1.3 · pandas 2.2.3 · matplotlib 3.10.0 |
